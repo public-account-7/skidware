@@ -1,6 +1,6 @@
 --hello
 local scripts = {}
-function script.new_connection(type, func)
+function scripts.new_connection(type, func)
     return type:Connect(func)
 end
 return scripts
