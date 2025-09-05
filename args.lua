@@ -1,0 +1,1 @@
+return {"mousepos","camera","mousecframe" }
