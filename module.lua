@@ -85,5 +85,6 @@ function scripts.createbutton(text, callback)
     if callback then
         TextButton.MouseButton1Click:Connect(callback)
     end
+    return TextButton
 end
 return scripts
