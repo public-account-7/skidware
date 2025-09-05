@@ -2456,6 +2456,31 @@ do
             Dropdown:BuildDropdownList();
         end;
 
+        function Dropdown:Refresh(NewValues)
+    if NewValues then
+        Dropdown.Values = NewValues
+    elseif Dropdown.SpecialType == 'Player' then
+        Dropdown.Values = GetPlayersString()
+    elseif Dropdown.SpecialType == 'Team' then
+        Dropdown.Values = GetTeamsString()
+    end
+
+    if Dropdown.Multi then
+        for Value in next, Dropdown.Value do
+            if not table.find(Dropdown.Values, Value) then
+                Dropdown.Value[Value] = nil
+            end
+        end
+    else
+        if Dropdown.Value and not table.find(Dropdown.Values, Dropdown.Value) then
+            Dropdown.Value = nil
+        end
+    end
+
+    Dropdown:BuildDropdownList()
+    Dropdown:Display()
+end
+
         function Dropdown:OpenDropdown()
             ListOuter.Visible = true;
             Library.OpenedFrames[ListOuter] = true;
