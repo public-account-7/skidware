@@ -1,1 +1,1 @@
-return {"Floss" = "rbxassetid://10714340543"}
+return {Floss = "rbxassetid://10714340543"}
