@@ -16,7 +16,7 @@ function scripts.createbutton(text, callback)
     TextButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
     TextButton.BorderSizePixel = 0
     TextButton.Position = UDim2.new(0.447, 0, 0.466, 0)
-    TextButton.Size = UDim2.new(0, 144, 0, 54)
+    TextButton.Size = UDim2.new(0, 120, 0, 45)
     TextButton.AutoButtonColor = false
     TextButton.Font = Enum.Font.SourceSans
     TextButton.TextColor3 = Color3.fromRGB(0, 0, 0)
