@@ -3,8 +3,14 @@ local scripts = {}
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Parent = gethui and gethui() or game.CoreGui
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-function scripts.new_connection(type, func)
-    return type:Connect(func)
+function scripts.new_connection(type, func, unsafe)
+    if unsafe then
+        return type:Connect(func)
+    else
+        return type:Connect(function(...)
+            pcall(func, ...)
+        end)
+    end
 end
 function scripts.createbutton(text, callback)
     local TextButton = Instance.new("TextButton")
