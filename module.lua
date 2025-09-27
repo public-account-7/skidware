@@ -4,6 +4,7 @@ local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Parent = gethui and gethui() or game.CoreGui
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 function scripts.new_connection(type, func, unsafe)
+    unsafe = unsafe or false
     if unsafe then
         return type:Connect(func)
     else
