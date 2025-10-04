@@ -2001,21 +2001,24 @@ do
         end;
 
         function Slider:Display()
-            local Suffix = Info.Suffix or '';
+            local Suffix = Info.Suffix or ''
 
             if Info.Compact then
                 DisplayLabel.Text = Info.Text .. ': ' .. Slider.Value .. Suffix
             elseif Info.HideMax then
                 DisplayLabel.Text = string.format('%s', Slider.Value .. Suffix)
             else
-                DisplayLabel.Text = string.format('%s/%s', Slider.Value .. Suffix, Slider.Max .. Suffix);
+                DisplayLabel.Text = string.format('%s/%s', Slider.Value .. Suffix, Slider.Max .. Suffix)
             end
 
-            local X = math.ceil(Library:MapValue(Slider.Value, Slider.Min, Slider.Max, 0, Slider.MaxSize));
-            Fill.Size = UDim2.new(0, X, 1, 0);
+            local totalRange = Slider.Max - Slider.Min
+            local relativeValue = Slider.Value - Slider.Min
+            local X = math.ceil((relativeValue / totalRange) * Slider.MaxSize)
 
-            HideBorderRight.Visible = not (X == Slider.MaxSize or X == 0);
-        end;
+            Fill.Size = UDim2.new(0, X, 1, 0)
+            HideBorderRight.Visible = not (X == Slider.MaxSize or X == 0)
+        end
+
 
         function Slider:OnChanged(Func)
             Slider.Changed = Func;
@@ -2032,8 +2035,11 @@ do
         end;
 
         function Slider:GetValueFromXOffset(X)
-            return Round(Library:MapValue(X, 0, Slider.MaxSize, Slider.Min, Slider.Max));
-        end;
+            local totalRange = Slider.Max - Slider.Min
+            local value = ((X / Slider.MaxSize) * totalRange) + Slider.Min
+            return Round(value)
+        end
+
 
         function Slider:SetValue(Str)
             local Num = tonumber(Str);
