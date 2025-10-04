@@ -3,6 +3,7 @@ local httpService = game:GetService('HttpService')
 local SaveManager = {} do
 	SaveManager.Folder = 'LinoriaLibSettings'
 	SaveManager.Ignore = {}
+    SaveManager.CurrentConfig = "N/A"
 	SaveManager.Parser = {
 		Toggle = {
 			Save = function(idx, object) 
@@ -193,10 +194,11 @@ local SaveManager = {} do
 				return self.Library:Notify('Failed to load autoload config: ' .. err)
 			end
 
+            SaveManager.CurrentConfig = name
+
 			self.Library:Notify(string.format('Auto loaded config %q', name))
 		end
 	end
-
 
 	function SaveManager:BuildConfigSection(tab)
 		assert(self.Library, 'Must set SaveManager.Library')
@@ -231,6 +233,8 @@ local SaveManager = {} do
 			if not success then
 				return self.Library:Notify('Failed to load config: ' .. err)
 			end
+
+            SaveManager.CurrentConfig = name
 
 			self.Library:Notify(string.format('Loaded config %q', name))
 		end)
