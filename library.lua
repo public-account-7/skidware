@@ -188,6 +188,15 @@ function Library:MakeDraggable(Instance, Cutoff)
     Instance.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 
         or input.UserInputType == Enum.UserInputType.Touch then
+            local objPos = Vector2.new(
+                input.Position.X - Instance.AbsolutePosition.X,
+                input.Position.Y - Instance.AbsolutePosition.Y
+            )
+
+            if objPos.Y > (Cutoff or 40) then
+                return
+            end
+
             dragging = true
             mousePos = input.Position
             framePos = Instance.Position
