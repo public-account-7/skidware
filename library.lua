@@ -1,5 +1,5 @@
 --[[
-get skidware now!
+get skidware now!!!!
 ]]
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -3008,19 +3008,49 @@ function Library:CreateWindow(...)
     });
 
     local TabArea = Library:Create('Frame', {
-        BackgroundTransparency = 1;
-        Position = UDim2.new(0, 8, 0, 8);
-        Size = UDim2.new(1, -16, 0, 21);
-        ZIndex = 1;
-        Parent = MainSectionInner;
-    });
+        BackgroundTransparency = 1,
+        Position = UDim2.new(0, 8, 0, 8),
+        Size = UDim2.new(1, -16, 0, 21),
+        ZIndex = 1,
+        ClipsDescendants = true,
+        Parent = MainSectionInner,
+    })
+
+    local TabScroll = Library:Create('ScrollingFrame', {
+        BackgroundTransparency = 1,
+        BorderSizePixel = 0,
+        Size = UDim2.new(1, 0, 1, 0),
+        CanvasSize = UDim2.new(0, 0, 0, 0),
+        ScrollingDirection = Enum.ScrollingDirection.X,
+        AutomaticCanvasSize = Enum.AutomaticSize.X,
+        ScrollBarThickness = 0,
+        ElasticBehavior = Enum.ElasticBehavior.Never,
+        ClipsDescendants = false,
+        ZIndex = 1,
+        Parent = TabArea,
+    })
 
     local TabListLayout = Library:Create('UIListLayout', {
-        Padding = UDim.new(0, Config.TabPadding);
-        FillDirection = Enum.FillDirection.Horizontal;
-        SortOrder = Enum.SortOrder.LayoutOrder;
-        Parent = TabArea;
-    });
+        Padding = UDim.new(0, Config.TabPadding or 4),
+        FillDirection = Enum.FillDirection.Horizontal,
+        SortOrder = Enum.SortOrder.LayoutOrder,
+        Parent = TabScroll,
+    })
+
+    local UIPadding = Library:Create('UIPadding', {
+        PaddingLeft = UDim.new(0, 2),
+        PaddingRight = UDim.new(0, 2),
+        Parent = TabScroll,
+    })
+
+    TabScroll.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseWheel then
+            TabScroll.CanvasPosition = Vector2.new(
+                math.clamp(TabScroll.CanvasPosition.X - input.Position.Z * 30, 0, TabScroll.AbsoluteCanvasSize.X),
+                0
+            )
+        end
+    end)
 
     local TabContainer = Library:Create('Frame', {
         BackgroundColor3 = Library.MainColor;
@@ -3051,15 +3081,14 @@ function Library:CreateWindow(...)
 
         local TabButton = Library:Create('Frame', {
             BackgroundColor3 = Library.BackgroundColor;
-            BorderColor3 = Library.OutlineColor;
+            BorderSizePixel = 0;
             Size = UDim2.new(0, TabButtonWidth + 8 + 4, 1, 0);
             ZIndex = 1;
-            Parent = TabArea;
+            Parent = TabScroll;
         });
 
         Library:AddToRegistry(TabButton, {
             BackgroundColor3 = 'BackgroundColor';
-            BorderColor3 = 'OutlineColor';
         });
 
         local TabButtonLabel = Library:CreateLabel({
@@ -3614,6 +3643,5 @@ end;
 
 Players.PlayerAdded:Connect(OnPlayerChange);
 Players.PlayerRemoving:Connect(OnPlayerChange);
-
-getgenv().Library = Library
-return Library
+getgenv().Library = Library;
+return Library;
