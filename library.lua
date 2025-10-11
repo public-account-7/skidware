@@ -1,5 +1,6 @@
 --[[
-get skidware now!!!!
+get skidware now
+1.0
 ]]
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -2620,32 +2621,48 @@ end
             Depbox:Resize();
         end);
 
-        function Depbox:Update()
-            for _, Dependency in next, Depbox.Dependencies do
-                local Elem = Dependency[1];
-                local Value = Dependency[2];
+function Depbox:Update()
+    for _, Dependency in next, Depbox.Dependencies do
+        local Elem = Dependency[1]
+        local Value = Dependency[2]
 
-                if Elem.Type == 'Toggle' and Elem.Value ~= Value then
-                    Holder.Visible = false;
-                    Depbox:Resize();
-                    return;
-                end;
-            end;
+        if typeof(Elem) == "table" then
+            if Elem.Type == "Toggle" and Elem.Value ~= Value then
+                Holder.Visible = false
+                Depbox:Resize()
+                return
+            end
+        elseif typeof(Elem) == "function" then
+            local result = Elem()
+            if result ~= Value then
+                Holder.Visible = false
+                Depbox:Resize()
+                return
+            end
+        elseif type(Elem) == "boolean" or type(Elem) == "string" or type(Elem) == "number" then
+            if Elem ~= Value then
+                Holder.Visible = false
+                Depbox:Resize()
+                return
+            end
+        end
+    end
 
-            Holder.Visible = true;
-            Depbox:Resize();
-        end;
+    Holder.Visible = true
+    Depbox:Resize()
+end
 
-        function Depbox:SetupDependencies(Dependencies)
-            for _, Dependency in next, Dependencies do
-                assert(type(Dependency) == 'table', 'SetupDependencies: Dependency is not of type `table`.');
-                assert(Dependency[1], 'SetupDependencies: Dependency is missing element argument.');
-                assert(Dependency[2] ~= nil, 'SetupDependencies: Dependency is missing value argument.');
-            end;
+function Depbox:SetupDependencies(Dependencies)
+    for _, Dependency in next, Dependencies do
+        assert(type(Dependency) == "table", "SetupDependencies: Dependency is not of type `table`.")
+        assert(Dependency[1] ~= nil, "SetupDependencies: Dependency is missing element or condition argument.")
+        assert(Dependency[2] ~= nil, "SetupDependencies: Dependency is missing value argument.")
+    end
 
-            Depbox.Dependencies = Dependencies;
-            Depbox:Update();
-        end;
+    Depbox.Dependencies = Dependencies
+    Depbox:Update()
+end
+
 
         Depbox.Container = Frame;
 
