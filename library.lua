@@ -1,6 +1,6 @@
 --[[
 get skidware now
-1.0
+1.1
 ]]
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -44,6 +44,8 @@ local Library = {
 
     OpenedFrames = {};
     DependencyBoxes = {};
+
+    ShowCustomCursor = false,
 
     Signals = {};
     ScreenGui = ScreenGui;
@@ -3557,7 +3559,7 @@ function Library:CreateWindow(...)
                 local Cursor = Drawing.new('Triangle');
                 Cursor.Thickness = 1;
                 Cursor.Filled = true;
-                Cursor.Visible = true;
+                Cursor.Visible = Library.ShowCustomCursor;
 
                 local CursorOutline = Drawing.new('Triangle');
                 CursorOutline.Thickness = 1;
@@ -3566,11 +3568,12 @@ function Library:CreateWindow(...)
                 CursorOutline.Visible = true;
 
                 while Toggled and ScreenGui.Parent do
-                    InputService.MouseIconEnabled = false;
+                    InputService.MouseIconEnabled = not Library.ShowCustomCursor;
 
                     local mPos = InputService:GetMouseLocation();
 
                     Cursor.Color = Library.AccentColor;
+                    Cursor.Visible = Library.ShowCustomCursor
 
                     Cursor.PointA = Vector2.new(mPos.X, mPos.Y);
                     Cursor.PointB = Vector2.new(mPos.X + 16, mPos.Y + 6);
@@ -3579,6 +3582,7 @@ function Library:CreateWindow(...)
                     CursorOutline.PointA = Cursor.PointA;
                     CursorOutline.PointB = Cursor.PointB;
                     CursorOutline.PointC = Cursor.PointC;
+                    CursorOutline.Visible = Library.ShowCustomCursor
 
                     RenderStepped:Wait();
                 end;
