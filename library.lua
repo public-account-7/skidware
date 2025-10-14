@@ -1,6 +1,6 @@
 --[[
 get skidware now
-1.2
+1.3
 ]]
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -1580,6 +1580,7 @@ do
             Numeric = Info.Numeric or false;
             Finished = Info.Finished or false;
             Type = 'Input';
+            ClearOnFocus = Info.ClearOnFocus or false;
             Callback = Info.Callback or function(Value) end;
         };
 
@@ -1662,6 +1663,7 @@ do
             TextColor3 = Library.FontColor;
             TextSize = 14;
             TextStrokeTransparency = 0;
+            ClearTextOnFocus = Info.ClearOnFocus or false;
             TextXAlignment = Enum.TextXAlignment.Left;
 
             ZIndex = 7;
@@ -1671,6 +1673,7 @@ do
         Library:ApplyTextStroke(Box);
 
         function Textbox:SetValue(Text)
+            if Textbox.Value == Text then return end
             if Info.MaxLength and #Text > Info.MaxLength then
                 Text = Text:sub(1, Info.MaxLength);
             end;
@@ -1697,9 +1700,6 @@ do
         else
             Box:GetPropertyChangedSignal('Text'):Connect(function()
                 Textbox:SetValue(Box.Text)
-            end)
-
-            Box.FocusLost:Connect(function()
                 Library:AttemptSave()
             end)
         end
@@ -2626,36 +2626,36 @@ end
             Depbox:Resize();
         end);
 
-function Depbox:Update()
-    for _, Dependency in next, Depbox.Dependencies do
-        local Elem = Dependency[1]
-        local Value = Dependency[2]
+        function Depbox:Update()
+            for _, Dependency in next, Depbox.Dependencies do
+                local Elem = Dependency[1]
+                local Value = Dependency[2]
 
-        if typeof(Elem) == "table" then
-            if Elem.Type == "Toggle" and Elem.Value ~= Value then
-                Holder.Visible = false
-                Depbox:Resize()
-                return
+                if typeof(Elem) == "table" then
+                    if Elem.Type == "Toggle" and Elem.Value ~= Value then
+                        Holder.Visible = false
+                        Depbox:Resize()
+                        return
+                    end
+                elseif typeof(Elem) == "function" then
+                    local result = Elem()
+                        if result ~= Value then
+                        Holder.Visible = false
+                        Depbox:Resize()
+                        return
+                    end
+                elseif type(Elem) == "boolean" or type(Elem) == "string" or type(Elem) == "number" then
+                    if Elem ~= Value then
+                        Holder.Visible = false
+                        Depbox:Resize()
+                        return
+                    end
+                end
             end
-        elseif typeof(Elem) == "function" then
-            local result = Elem()
-            if result ~= Value then
-                Holder.Visible = false
-                Depbox:Resize()
-                return
-            end
-        elseif type(Elem) == "boolean" or type(Elem) == "string" or type(Elem) == "number" then
-            if Elem ~= Value then
-                Holder.Visible = false
-                Depbox:Resize()
-                return
-            end
+
+            Holder.Visible = true
+            Depbox:Resize()
         end
-    end
-
-    Holder.Visible = true
-    Depbox:Resize()
-end
 
 function Depbox:SetupDependencies(Dependencies)
     for _, Dependency in next, Dependencies do
