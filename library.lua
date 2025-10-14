@@ -1691,16 +1691,19 @@ do
         if Textbox.Finished then
             Box.FocusLost:Connect(function(enter)
                 if not enter then return end
-
-                Textbox:SetValue(Box.Text);
-                Library:AttemptSave();
+                Textbox:SetValue(Box.Text)
+                Library:AttemptSave()
             end)
         else
             Box:GetPropertyChangedSignal('Text'):Connect(function()
-                Textbox:SetValue(Box.Text);
-                Library:AttemptSave();
-            end);
+                Textbox:SetValue(Box.Text)
+            end)
+
+            Box.FocusLost:Connect(function()
+                Library:AttemptSave()
+            end)
         end
+
 
         -- https://devforum.roblox.com/t/how-to-make-textboxes-follow-current-cursor-position/1368429/6
         -- thank you nicemike40 :)
