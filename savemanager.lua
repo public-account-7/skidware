@@ -3,67 +3,124 @@ local httpService = game:GetService('HttpService')
 local SaveManager = {} do
 	SaveManager.Folder = 'LinoriaLibSettings'
 	SaveManager.Ignore = {}
-    SaveManager.CurrentConfig = "N/A"
+	SaveManager.CurrentConfig = "N/A"
+
 	SaveManager.Parser = {
 		Toggle = {
-			Save = function(idx, object) 
-				return { type = 'Toggle', idx = idx, value = object.Value } 
+			Save = function(idx, object)
+				local ok, result = pcall(function()
+					return { type = 'Toggle', idx = idx, value = object.Value }
+				end)
+				if not ok then warn(result) end
+				return result
 			end,
 			Load = function(idx, data)
-				if Toggles[idx] then 
-					Toggles[idx]:SetValue(data.value)
-				end
+				local ok, err = pcall(function()
+					if Toggles[idx] then
+						Toggles[idx]:SetValue(data.value)
+					end
+				end)
+				if not ok then warn(err) end
 			end,
 		},
+
 		Slider = {
 			Save = function(idx, object)
-				return { type = 'Slider', idx = idx, value = tostring(object.Value) }
+				local ok, result = pcall(function()
+					return { type = 'Slider', idx = idx, value = tostring(object.Value) }
+				end)
+				if not ok then warn(result) end
+				return result
 			end,
 			Load = function(idx, data)
-				if Options[idx] then 
-					Options[idx]:SetValue(data.value)
-				end
+				local ok, err = pcall(function()
+					if Options[idx] then
+						Options[idx]:SetValue(data.value)
+					end
+				end)
+				if not ok then warn(err) end
 			end,
 		},
+
 		Dropdown = {
 			Save = function(idx, object)
-				return { type = 'Dropdown', idx = idx, value = object.Value, mutli = object.Multi }
+				local ok, result = pcall(function()
+					return { type = 'Dropdown', idx = idx, value = object.Value, mutli = object.Multi }
+				end)
+				if not ok then warn(result) end
+				return result
 			end,
 			Load = function(idx, data)
-				if Options[idx] then 
-					Options[idx]:SetValue(data.value)
-				end
+				local ok, err = pcall(function()
+					if Options[idx] then
+						Options[idx]:SetValue(data.value)
+					end
+				end)
+				if not ok then warn(err) end
 			end,
 		},
+
 		ColorPicker = {
 			Save = function(idx, object)
-				return { type = 'ColorPicker', idx = idx, value = object.Value:ToHex(), transparency = object.Transparency }
+				local ok, result = pcall(function()
+					return {
+						type = 'ColorPicker',
+						idx = idx,
+						value = object.Value:ToHex(),
+						transparency = object.Transparency
+					}
+				end)
+				if not ok then warn(result) end
+				return result
 			end,
 			Load = function(idx, data)
-				if Options[idx] then 
-					Options[idx]:SetValueRGB(Color3.fromHex(data.value), data.transparency)
-				end
+				local ok, err = pcall(function()
+					if Options[idx] then
+						Options[idx]:SetValueRGB(Color3.fromHex(data.value), data.transparency)
+					end
+				end)
+				if not ok then warn(err) end
 			end,
 		},
+
 		KeyPicker = {
 			Save = function(idx, object)
-				return { type = 'KeyPicker', idx = idx, mode = object.Mode, key = object.Value }
+				local ok, result = pcall(function()
+					return {
+						type = 'KeyPicker',
+						idx = idx,
+						mode = object.Mode,
+						key = object.Value
+					}
+				end)
+				if not ok then warn(result) end
+				return result
 			end,
 			Load = function(idx, data)
-				if Options[idx] then 
-					Options[idx]:SetValue({ data.key, data.mode })
-				end
+				local ok, err = pcall(function()
+					if Options[idx] then
+						Options[idx]:SetValue({ data.key, data.mode })
+					end
+				end)
+				if not ok then warn(err) end
 			end,
 		},
 
 		Input = {
 			Save = function(idx, object)
-				return { type = 'Input', idx = idx, text = object.Value }
+				local ok, result = pcall(function()
+					return { type = 'Input', idx = idx, text = object.Value }
+				end)
+				if not ok then warn(result) end
+				return result
 			end,
 			Load = function(idx, data)
-				if Options[idx] and type(data.text) == 'string' then
-					Options[idx]:SetValue(data.text)
-				end
+				local ok, err = pcall(function()
+					if Options[idx] and type(data.text) == 'string' then
+						Options[idx]:SetValue(data.text)
+					end
+				end)
+				if not ok then warn(err) end
 			end,
 		},
 	}
