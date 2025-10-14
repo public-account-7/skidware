@@ -113,24 +113,32 @@ local SaveManager = {} do
 	end
 
 	function SaveManager:Load(name)
-		if (not name) then
-			return false, 'no config file is selected'
+		if not name then
+			return false, "no config file is selected"
 		end
-		
-		local file = self.Folder .. '/settings/' .. name .. '.json'
-		if not isfile(file) then return false, 'invalid file' end
+
+		local file = self.Folder .. "/settings/" .. name .. ".json"
+		if not isfile(file) then
+			return false, "invalid file"
+		end
 
 		local success, decoded = pcall(httpService.JSONDecode, httpService, readfile(file))
-		if not success then return false, 'decode error' end
+		if not success then
+			return false, "decode error"
+		end
 
 		for _, option in next, decoded.objects do
-			if self.Parser[option.type] then
-				task.spawn(function() self.Parser[option.type].Load(option.idx, option) end) -- task.spawn() so the config loading wont get stuck.
+			local parser = self.Parser[option.type]
+			if parser then
+				parser.Load(option.idx, option)
+			else
+				warn(("[option: %s] is not found, skipping..."):format(tostring(option.type)))
 			end
 		end
 
 		return true
 	end
+
 
 	function SaveManager:IgnoreThemeSettings()
 		self:SetIgnoreIndexes({ 
