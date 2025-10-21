@@ -3,7 +3,7 @@ if not skidware then
 end
 local fp = skidware.AddLeftGroupbox("Fake Pos")
 local fpenabled = false
-antistompgb:AddToggle("Antistomp", {
+fp:AddToggle("Antistomp", {
     Text = "Fake pos",
     Default = false,
     Callback = function(v)
