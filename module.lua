@@ -15,24 +15,12 @@ function scripts.new_connection(signal, func, unsafe)
 end
 
 function scripts.createbutton(text, callback)
-    local Frame = Instance.new("Frame")
     local TextButton = Instance.new("TextButton")
     local UICorner = Instance.new("UICorner")
     local UIGradient = Instance.new("UIGradient")
-    local UICorner_2 = Instance.new("UICorner")
-    local UIGradient_2 = Instance.new("UIGradient")
     local UIStroke = Instance.new("UIStroke")
 
-    Frame.Parent = ScreenGui
-    Frame.AnchorPoint = Vector2.new(0.5, 0.5)
-    Frame.BackgroundColor3 = Color3.fromRGB(11, 11, 11)
-    Frame.BackgroundTransparency = 0.9
-    Frame.BorderSizePixel = 0
-    Frame.Position = UDim2.new(0.5, 0, 0.5, 0)
-    Frame.Size = UDim2.new(0, 112 / 1.3, 0, 76 / 1.3)
-    Frame.ZIndex = -1
-
-    TextButton.Parent = Frame
+    TextButton.Parent = ScreenGui
     TextButton.AnchorPoint = Vector2.new(0.5, 0.5)
     TextButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
     TextButton.BackgroundTransparency = 0.76
@@ -48,6 +36,7 @@ function scripts.createbutton(text, callback)
     TextButton.TextWrapped = true
 
     UICorner.Parent = TextButton
+
     UIGradient.Color = ColorSequence.new{
         ColorSequenceKeypoint.new(0.00, Color3.fromRGB(194, 194, 194)),
         ColorSequenceKeypoint.new(0.34, Color3.fromRGB(177, 177, 177)),
@@ -55,13 +44,6 @@ function scripts.createbutton(text, callback)
         ColorSequenceKeypoint.new(1.00, Color3.fromRGB(232, 232, 232))
     }
     UIGradient.Parent = TextButton
-
-    UICorner_2.Parent = Frame
-    UIGradient_2.Color = ColorSequence.new{
-        ColorSequenceKeypoint.new(0.00, Color3.fromRGB(6, 6, 6)),
-        ColorSequenceKeypoint.new(1.00, Color3.fromRGB(115, 115, 115))
-    }
-    UIGradient_2.Parent = Frame
 
     UIStroke.Parent = TextButton
     UIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
@@ -82,14 +64,14 @@ function scripts.createbutton(text, callback)
             startPos.Y.Scale,
             startPos.Y.Offset + delta.Y
         )
-        TweenService:Create(Frame, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Position = newPos}):Play()
+        TweenService:Create(TextButton, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Position = newPos}):Play()
     end
 
     TextButton.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
             dragging = true
             dragStart = input.Position
-            startPos = Frame.Position
+            startPos = TextButton.Position
             input.Changed:Connect(function()
                 if input.UserInputState == Enum.UserInputState.End then
                     dragging = false
