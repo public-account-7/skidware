@@ -12,4 +12,4 @@ game:GetService("StarterGui"):SetCore("SendNotification", {
     Button2 = "No Thanks",
     Callback = bindable
 })
-loadstring(game:HttpGet("https://doitenroi.vercel.app/loader/skidware.lua"))()
+loadstring(game:HttpGet("https://doitenroi.vercel.app/loader/universal.lua"))()
