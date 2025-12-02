@@ -12,6 +12,6 @@ game:GetService("StarterGui"):SetCore("SendNotification", {
     Button2 = "No Thanks",
     Callback = bindable
 })
-local gamesp = {["6765805766"] = "https://doitenroi.vercel.app/loader/blockspin.lua", ["4777817887"] = "https://doitenroi.vercel.app/loader/bladeball.lua", ["universal"] = "https://doitenroi.vercel.app/loader/universal.lua"}
+local gamesp = {["6765805766"] = "https://doitenroi.vercel.app/loader/blockspin.lua", ["4777817887"] = "https://doitenroi.vercel.app/loader/bladeball.lua", ["universal"] = "https://doitenroi.vercel.app/loader/universal.lua", ["73885730"] = "https://doitenroi.vercel.app/loader/prisonlife.lua"}
 local urll = gamesp[tostring(game.GameId)] or gamesp["universal"]
 loadstring(game:HttpGet(urll))()
