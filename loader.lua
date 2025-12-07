@@ -12,6 +12,7 @@ game:GetService("StarterGui"):SetCore("SendNotification", {
     Button2 = "No Thanks",
     Callback = bindable
 })
-local gamesp = {["6765805766"] = "https://doitenroi.vercel.app/loader/blockspin.lua", ["4777817887"] = "https://doitenroi.vercel.app/loader/bladeball.lua", ["universal"] = "https://doitenroi.vercel.app/loader/universal.lua", ["73885730"] = "https://doitenroi.vercel.app/loader/prisonlife.lua"}
-local urll = gamesp[tostring(game.GameId)] or gamesp["universal"]
-loadstring(game:HttpGet(urll))()
+local baseurl = "https://raw.githubusercontent.com/public-account-7/skidware/refs/heads/main/games/"
+local gamesp = {["6765805766"] = "blockspin.lua", ["4777817887"] = "bladeball.lua", ["universal"] = "universal.lua", ["73885730"] = "prisonlife.lua"}
+local ahsdkabhdkjbhaw = gamesp[tostring(game.GameId)] or gamesp["universal"]
+loadstring(game:HttpGet(baseurl .. ahsdkabhdkjbhaw))()
