@@ -1,19 +1,3 @@
---[[
-     _      ___         ____  ______
-    | | /| / (_)__  ___/ / / / /  _/
-    | |/ |/ / / _ \/ _  / /_/ // /  
-    |__/|__/_/_//_/\_,_/\____/___/
-    
-    v1.6.62  |  2025-12-14  |  Roblox UI Library for scripts
-    
-    To view the source code, see the `src/` folder on the official GitHub repository.
-    
-    Author: Footagesus (Footages, .ftgs, oftgs)
-    Github: https://github.com/Footagesus/WindUI
-    Discord: https://discord.gg/ftgs-development-hub-1300692552005189632
-    License: MIT
-]]
-
 local a a={cache={}, load=function(b)if not a.cache[b]then a.cache[b]={c=a[b]()}end return a.cache[b].c end}do function a.a()return{
 
 
@@ -5386,18 +5370,30 @@ function af.SelfDestroy(ah)
 ag=false
 
 if af.ButtonFrame then
+if af.ButtonFrame._connections then
+for ai,aj in ipairs(af.ButtonFrame._connections)do
+if aj.Disconnect then
+aj:Disconnect()
+end
+end
+end
 af.ButtonFrame:Destroy()
 af.ButtonFrame=nil
 end
 
-if af.UIElements and af.UIElements.ButtonIcon then
-af.UIElements.ButtonIcon:Destroy()
-af.UIElements.ButtonIcon=nil
+if af.UIElements then
+for ai,aj in pairs(af.UIElements)do
+if aj.Destroy then
+aj:Destroy()
+end
+end
+af.UIElements=nil
 end
 
-af.UIElements=nil
 af.Callback=nil
+ae=nil
 end
+
 
 if af.Locked then
 af:Lock()
