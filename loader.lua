@@ -21,6 +21,6 @@ for _, bad in ipairs(badexec) do
     end
 end
 local baseurl = "https://raw.githubusercontent.com/public-account-7/skidware/refs/heads/main/games/"
-local gamesp = {["6765805766"] = "blockspin.lua", ["4777817887"] = "bladeball.lua", ["universal"] = "universal.lua", ["73885730"] = "prisonlife.lua"}
+local gamesp = {["6765805766"] = "blockspin.lua", ["4777817887"] = "bladeball.lua", ["universal"] = "universal.lua", ["73885730"] = "prisonlife.lua", ["4914269443"] = "unamedshooter.lua"}
 local ahsdkabhdkjbhaw = gamesp[tostring(game.GameId)] or gamesp["universal"]
 loadstring(game:HttpGet(baseurl .. ahsdkabhdkjbhaw))()
