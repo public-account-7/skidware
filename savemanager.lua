@@ -337,7 +337,9 @@ local SaveManager = {} do
 			if not success then
 				return self.Library:Notify('Failed to delete config: ' .. err)
 			end
-
+				
+			Options.SaveManager_ConfigList:SetValues(self:RefreshConfigList())
+			Options.SaveManager_ConfigList:SetValue(nil)
 			self.Library:Notify(string.format('Deleted config %q', name))
 		end)
 
