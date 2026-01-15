@@ -168,7 +168,22 @@ local SaveManager = {} do
 		writefile(fullPath, encoded)
 		return true
 	end
+	
+	function SaveManager:Delete(name)
+		if (not name) then
+			return false, 'no config file is selected'
+		end
 
+		local fullPath = self.Folder .. '/settings/' .. name .. '.json'
+
+		if not isfile(fullPath) then
+			return false, 'config file does not exist'
+		end
+
+		delfile(fullPath)
+		return true
+	end
+	
 	function SaveManager:Load(name)
 		if not name then
 			return false, "no config file is selected"
@@ -313,6 +328,17 @@ local SaveManager = {} do
 			end
 
 			self.Library:Notify(string.format('Overwrote config %q', name))
+		end)
+
+		section:AddButton('Delete config', function()
+			local name = Options.SaveManager_ConfigList.Value
+
+			local success, err = self:Delete(name)
+			if not success then
+				return self.Library:Notify('Failed to delete config: ' .. err)
+			end
+
+			self.Library:Notify(string.format('Deleted config %q', name))
 		end)
 
 		section:AddButton('Refresh list', function()
