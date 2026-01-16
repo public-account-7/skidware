@@ -1,4 +1,4 @@
-game:GetService("Players").LocalPlayer:Kick("rn down https://discord.gg/rZjm4267nJ")
+game:GetService("Players").LocalPlayer:Kick("script down rn https://discord.gg/rZjm4267nJ")
 --[[local bindable = Instance.new("BindableFunction")
 function bindable.OnInvoke(choice)
     if choice == "Yes" then
