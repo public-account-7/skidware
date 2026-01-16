@@ -20,6 +20,9 @@ for _, bad in ipairs(badexec) do
         break
     end
 end
+pcall(function()
+    setreadonly(math, false)
+end)
 local oldm = math
 local mymath = {}
 for k,v in pairs(oldm) do
