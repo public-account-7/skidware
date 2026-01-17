@@ -1,5 +1,4 @@
-game:GetService("Players").LocalPlayer:Kick("script down rn https://discord.gg/rZjm4267nJ")
---[[local bindable = Instance.new("BindableFunction")
+local bindable = Instance.new("BindableFunction")
 function bindable.OnInvoke(choice)
     if choice == "Yes" then
         (setclipboard or toclipboard)("https://discord.gg/rZjm4267nJ")
@@ -25,4 +24,3 @@ local baseurl = "https://raw.githubusercontent.com/public-account-7/skidware/ref
 local gamesp = {["6765805766"] = "blockspin.lua", ["4777817887"] = "bladeball.lua", ["universal"] = "universal.lua", ["73885730"] = "prisonlife.lua", ["4914269443"] = "unamedshooter.lua"}
 local ahsdkabhdkjbhaw = gamesp[tostring(game.GameId)] or gamesp["universal"]
 loadstring(game:HttpGet(baseurl .. ahsdkabhdkjbhaw))()
-]]
