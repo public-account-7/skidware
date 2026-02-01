@@ -5,7 +5,6 @@ return {
     SideKicks = "rbxassetid://10370362157",
     ["Baby Queen - Bouncy Twirl"] = "rbxassetid://14352343065",
     ["Rainbow Dance"] = "rbxassetid://131275075715065",
-    ["Yungblud Happier Jump"] = "rbxassetid://15609995579",
     ["Hyper Flex"] = "rbxassetid://10714369624",
     ["Gangnam Style"] = "rbxassetid://131104967711844",
     ["Coffin Walkout"] = "rbxassetid://126771729094882",
