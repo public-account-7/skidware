@@ -27,7 +27,7 @@ function scripts.createbutton(text, callback)
 	TextButton.BackgroundTransparency = 0.858
 	TextButton.BorderSizePixel = 0
 	TextButton.Position = UDim2.new(0.5, 0, 0.5, 0)
-	TextButton.Size = UDim2.new(0, 50, 0, 50)
+	TextButton.Size = UDim2.new(0, 70, 0, 70)
 	TextButton.Font = Enum.Font.SourceSans
 	TextButton.Text = tostring(text)
 	TextButton.TextColor3 = Color3.fromRGB(0, 0, 0)
