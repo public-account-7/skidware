@@ -27,7 +27,7 @@ function scripts.createbutton(text, callback)
 	TextButton.BackgroundTransparency = 0.858
 	TextButton.BorderSizePixel = 0
 	TextButton.Position = UDim2.new(0.5, 0, 0.5, 0)
-	TextButton.Size = UDim2.new(0, 100, 0, 100)
+	TextButton.Size = UDim2.new(0, 50, 0, 50)
 	TextButton.Font = Enum.Font.SourceSans
 	TextButton.Text = tostring(text)
 	TextButton.TextColor3 = Color3.fromRGB(0, 0, 0)
@@ -60,7 +60,8 @@ function scripts.createbutton(text, callback)
 		local UIS = game:GetService("UserInputService")
 		local TS = game:GetService("TweenService")
 
-		local drag, resize = false, false
+		local drag = false
+		local resize = false
 		local ds, sp, di, ri
 		local mt, st
 		local ti = TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
@@ -80,15 +81,15 @@ function scripts.createbutton(text, callback)
 		end)
 
 		b.InputChanged:Connect(function(i)
-			if i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch then
+			if drag and (i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch) then
 				di = i
 			end
 		end)
 
 		f.InputBegan:Connect(function(i)
+			if drag then return end
 			if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then
 				resize = true
-				drag = false
 				i.Changed:Connect(function()
 					if i.UserInputState == Enum.UserInputState.End then
 						resize = false
@@ -98,7 +99,7 @@ function scripts.createbutton(text, callback)
 		end)
 
 		f.InputChanged:Connect(function(i)
-			if i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch then
+			if resize and (i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch) then
 				ri = i
 			end
 		end)
@@ -110,8 +111,8 @@ function scripts.createbutton(text, callback)
 				if st then st:Cancel() end
 				st = TS:Create(b, ti, {
 					Size = UDim2.fromOffset(
-						i.Position.X - b.AbsolutePosition.X,
-						i.Position.Y - b.AbsolutePosition.Y
+						math.max(50, i.Position.X - b.AbsolutePosition.X),
+						math.max(50, i.Position.Y - b.AbsolutePosition.Y)
 					)
 				})
 				st:Play()
