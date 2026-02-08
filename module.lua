@@ -15,83 +15,10 @@ function scripts.new_connection(signal, func, unsafe)
 end
 
 function scripts.createbutton(text, callback)
-    local TextButton = Instance.new("TextButton")
-    local UICorner = Instance.new("UICorner")
-    local UIGradient = Instance.new("UIGradient")
-    local UIStroke = Instance.new("UIStroke")
-
-    TextButton.Parent = ScreenGui
-    TextButton.AnchorPoint = Vector2.new(0.5, 0.5)
-    TextButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    TextButton.BackgroundTransparency = 0.76
-    TextButton.Position = UDim2.new(0.5, 0, 0.5, 0)
-    TextButton.Size = UDim2.new(0, 113 / 1.45, 0, 76 / 1.45)
-    TextButton.AutoButtonColor = false
-    TextButton.Font = Enum.Font.SourceSans
-    TextButton.Text = tostring(text)
-    TextButton.TextColor3 = Color3.fromRGB(0, 0, 0)
-    TextButton.TextSize = 23
-    TextButton.TextStrokeColor3 = Color3.fromRGB(176, 176, 176)
-    TextButton.TextStrokeTransparency = 0.7
-    TextButton.TextWrapped = true
-
-    UICorner.Parent = TextButton
-
-    UIGradient.Color = ColorSequence.new{
-        ColorSequenceKeypoint.new(0.00, Color3.fromRGB(194, 194, 194)),
-        ColorSequenceKeypoint.new(0.34, Color3.fromRGB(177, 177, 177)),
-        ColorSequenceKeypoint.new(0.64, Color3.fromRGB(197, 197, 197)),
-        ColorSequenceKeypoint.new(1.00, Color3.fromRGB(232, 232, 232))
-    }
-    UIGradient.Parent = TextButton
-
-    UIStroke.Parent = TextButton
-    UIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-    UIStroke.Color = Color3.fromRGB(167, 167, 167)
-    UIStroke.LineJoinMode = Enum.LineJoinMode.Round
-    UIStroke.Thickness = 0.6
-    UIStroke.Transparency = 0
-
-    local UserInputService = game:GetService("UserInputService")
-    local TweenService = game:GetService("TweenService")
-    local dragging, dragStart, startPos
-
-    local function update(input)
-        local delta = input.Position - dragStart
-        local newPos = UDim2.new(
-            startPos.X.Scale,
-            startPos.X.Offset + delta.X,
-            startPos.Y.Scale,
-            startPos.Y.Offset + delta.Y
-        )
-        TweenService:Create(TextButton, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Position = newPos}):Play()
-    end
-
-    TextButton.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            dragging = true
-            dragStart = input.Position
-            startPos = TextButton.Position
-            input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.End then
-                    dragging = false
-                end
-            end)
-        end
-    end)
-    TextButton.InputChanged:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-            dragInput = input
-        end
-    end)
-    UserInputService.InputChanged:Connect(function(input)
-        if dragging and input == dragInput then
-            update(input)
-        end
-    end)
-
-    if callback then
-        TextButton.MouseButton1Down:Connect(callback)
+	local a,b,c,d,e=Instance.new'TextButton',Instance.new'UICorner',Instance.new'Frame',Instance.new'UIGradient',Instance.new'UITextSizeConstraint'a.Parent=ScreenGui a.AnchorPoint=Vector2.new(0.5,0.5)a.BackgroundColor3=Color3.fromRGB(255,255,255)a.BackgroundTransparency=0.858 a.BorderColor3=Color3.fromRGB(0,0,0)a.BorderSizePixel=0 a.Position=UDim2.new(0.5,0,0.5,0)a.Size=UDim2.new(0,100,0,100)a.Font=Enum.Font.SourceSans a.Text=tostring(text)a.TextColor3=Color3.fromRGB(0,0,0)a.TextScaled=true a.TextSize=25 a.TextWrapped=true b.CornerRadius=UDim.new(0,10)b.Parent=a c.Parent=a c.AnchorPoint=Vector2.new(1,1)c.BackgroundColor3=Color3.fromRGB(255,255,255)c.BackgroundTransparency=1 c.BorderColor3=Color3.fromRGB(0,0,0)c.BorderSizePixel=0 c.Position=UDim2.new(1,0,1,0)c.Size=UDim2.new(0,15,0,15)d.Color=ColorSequence.new{ColorSequenceKeypoint.new(0,Color3.fromRGB(218,218,218)),ColorSequenceKeypoint.new(1,Color3.fromRGB(161,161,161))}d.Parent=a e.Parent=a e.MaxTextSize=35 local function ETHC_fake_script()local f=Instance.new('LocalScript',a)local g=f.Parent local h,i,j,k,l,m=g.Frame,game:GetService'UserInputService',game:GetService'TweenService',false,false local n,o,p,q,r,s=(TweenInfo.new(0.15,Enum.EasingStyle.Quad,Enum.EasingDirection.Out))g.InputBegan:Connect(function(t)if l then return end if t.UserInputType==Enum.UserInputType.MouseButton1 or t.UserInputType==Enum.UserInputType.Touch then k=true o=t.Position p=g.Position t.Changed:Connect(function()if t.UserInputState==Enum.UserInputState.End then k=false end end)end end)g.InputChanged:Connect(function(t)if t.UserInputType==Enum.UserInputType.MouseMovement or t.UserInputType==Enum.UserInputType.Touch then s=t end end)h.InputBegan:Connect(function(t)if t.UserInputType==Enum.UserInputType.MouseButton1 or t.UserInputType==Enum.UserInputType.Touch then l=true k=false t.Changed:Connect(function()if t.UserInputState==Enum.UserInputState.End then l=false end end)end end)h.InputChanged:Connect(function(t)if t.UserInputType==Enum.UserInputType.MouseMovement or t.UserInputType==Enum.UserInputType.Touch then m=t end end)i.InputChanged:Connect(function(t)if t.UserInputType~=Enum.UserInputType.MouseMovement and t.UserInputType~=Enum.UserInputType.Touch then return end if l and t==m then if r then r:Cancel()end r=j:Create(g,n,{Size=UDim2.fromOffset(t.Position.X-g.AbsolutePosition.X,t.Position.Y-g.AbsolutePosition.Y)})r:Play()elseif k and t==s then if q then q:Cancel()end local u=t.Position-o q=j:Create(g,n,{Position=UDim2.new(p.X.Scale,p.X.Offset+u.X,p.Y.Scale,p.Y.Offset+u.Y)})q:Play()end end)end coroutine.wrap(ETHC_fake_script)()
+	
+	if callback then
+        a.MouseButton1Down:Connect(callback)
     end
 
     return TextButton
