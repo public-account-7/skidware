@@ -15,10 +15,99 @@ function scripts.new_connection(signal, func, unsafe)
 end
 
 function scripts.createbutton(text, callback)
-	local a,b,c,d,e=Instance.new'TextButton',Instance.new'UICorner',Instance.new'Frame',Instance.new'UIGradient',Instance.new'UITextSizeConstraint'a.Parent=ScreenGui a.AnchorPoint=Vector2.new(0.5,0.5)a.BackgroundColor3=Color3.fromRGB(255,255,255)a.BackgroundTransparency=0.858 a.BorderColor3=Color3.fromRGB(0,0,0)a.BorderSizePixel=0 a.Position=UDim2.new(0.5,0,0.5,0)a.Size=UDim2.new(0,100,0,100)a.Font=Enum.Font.SourceSans a.Text=tostring(text)a.TextColor3=Color3.fromRGB(0,0,0)a.TextScaled=true a.TextSize=25 a.TextWrapped=true b.CornerRadius=UDim.new(0,10)b.Parent=a c.Parent=a c.AnchorPoint=Vector2.new(1,1)c.BackgroundColor3=Color3.fromRGB(255,255,255)c.BackgroundTransparency=1 c.BorderColor3=Color3.fromRGB(0,0,0)c.BorderSizePixel=0 c.Position=UDim2.new(1,0,1,0)c.Size=UDim2.new(0,15,0,15)d.Color=ColorSequence.new{ColorSequenceKeypoint.new(0,Color3.fromRGB(218,218,218)),ColorSequenceKeypoint.new(1,Color3.fromRGB(161,161,161))}d.Parent=a e.Parent=a e.MaxTextSize=35 local function ETHC_fake_script()local f=Instance.new('LocalScript',a)local g=f.Parent local h,i,j,k,l,m=g.Frame,game:GetService'UserInputService',game:GetService'TweenService',false,false local n,o,p,q,r,s=(TweenInfo.new(0.15,Enum.EasingStyle.Quad,Enum.EasingDirection.Out))g.InputBegan:Connect(function(t)if l then return end if t.UserInputType==Enum.UserInputType.MouseButton1 or t.UserInputType==Enum.UserInputType.Touch then k=true o=t.Position p=g.Position t.Changed:Connect(function()if t.UserInputState==Enum.UserInputState.End then k=false end end)end end)g.InputChanged:Connect(function(t)if t.UserInputType==Enum.UserInputType.MouseMovement or t.UserInputType==Enum.UserInputType.Touch then s=t end end)h.InputBegan:Connect(function(t)if t.UserInputType==Enum.UserInputType.MouseButton1 or t.UserInputType==Enum.UserInputType.Touch then l=true k=false t.Changed:Connect(function()if t.UserInputState==Enum.UserInputState.End then l=false end end)end end)h.InputChanged:Connect(function(t)if t.UserInputType==Enum.UserInputType.MouseMovement or t.UserInputType==Enum.UserInputType.Touch then m=t end end)i.InputChanged:Connect(function(t)if t.UserInputType~=Enum.UserInputType.MouseMovement and t.UserInputType~=Enum.UserInputType.Touch then return end if l and t==m then if r then r:Cancel()end r=j:Create(g,n,{Size=UDim2.fromOffset(t.Position.X-g.AbsolutePosition.X,t.Position.Y-g.AbsolutePosition.Y)})r:Play()elseif k and t==s then if q then q:Cancel()end local u=t.Position-o q=j:Create(g,n,{Position=UDim2.new(p.X.Scale,p.X.Offset+u.X,p.Y.Scale,p.Y.Offset+u.Y)})q:Play()end end)end coroutine.wrap(ETHC_fake_script)()
-	
+	local TextButton = Instance.new("TextButton")
+local UICorner = Instance.new("UICorner")
+local Frame = Instance.new("Frame")
+local UIGradient = Instance.new("UIGradient")
+local UITextSizeConstraint = Instance.new("UITextSizeConstraint")
+
+TextButton.Parent = ScreenGui
+TextButton.AnchorPoint = Vector2.new(0.5, 0.5)
+TextButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+TextButton.BackgroundTransparency = 0.858
+TextButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
+TextButton.BorderSizePixel = 0
+TextButton.Position = UDim2.new(0.5, 0, 0.5, 0)
+TextButton.Size = UDim2.new(0, 100, 0, 100)
+TextButton.Font = Enum.Font.SourceSans
+TextButton.Text = tostring(text)
+TextButton.TextColor3 = Color3.fromRGB(0, 0, 0)
+TextButton.TextScaled = true
+TextButton.TextSize = 25.000
+TextButton.TextWrapped = true
+
+UICorner.CornerRadius = UDim.new(0, 10)
+UICorner.Parent = TextButton
+
+Frame.Parent = TextButton
+Frame.AnchorPoint = Vector2.new(1, 1)
+Frame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Frame.BackgroundTransparency = 1.000
+Frame.BorderColor3 = Color3.fromRGB(0, 0, 0)
+Frame.BorderSizePixel = 0
+Frame.Position = UDim2.new(1, 0, 1, 0)
+Frame.Size = UDim2.new(0, 15, 0, 15)
+
+UIGradient.Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(218, 218, 218)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(161, 161, 161))}
+UIGradient.Parent = TextButton
+
+UITextSizeConstraint.Parent = TextButton
+UITextSizeConstraint.MaxTextSize = 35
+
+
+local function ETHC_fake_script() -- TextButton.LocalScript 
+    local script = Instance.new('LocalScript', TextButton)
+
+    local b=script.Parent
+    local f=b.Frame
+    local UIS=game:GetService("UserInputService")
+    local TS=game:GetService("TweenService")
+    
+    local drag,resize, ri =false,false
+    local ds,sp,mt,st,di
+    local ti=TweenInfo.new(0.15,Enum.EasingStyle.Quad,Enum.EasingDirection.Out)
+    
+    b.InputBegan:Connect(function(i)
+        if resize then return end
+        if i.UserInputType==Enum.UserInputType.MouseButton1 or i.UserInputType==Enum.UserInputType.Touch then
+            drag=true ds=i.Position sp=b.Position
+            i.Changed:Connect(function() if i.UserInputState==Enum.UserInputState.End then drag=false end end)
+        end
+    end)
+    b.InputChanged:Connect(function(i)
+        if i.UserInputType==Enum.UserInputType.MouseMovement or i.UserInputType==Enum.UserInputType.Touch then
+            di = i
+        end
+    end)
+    f.InputBegan:Connect(function(i)
+        if i.UserInputType==Enum.UserInputType.MouseButton1 or i.UserInputType==Enum.UserInputType.Touch then
+            resize=true drag=false
+            i.Changed:Connect(function() if i.UserInputState==Enum.UserInputState.End then resize=false end end)
+        end
+    end)
+    f.InputChanged:Connect(function(i)
+        if i.UserInputType==Enum.UserInputType.MouseMovement or i.UserInputType==Enum.UserInputType.Touch then
+            ri = i
+        end
+    end)
+    UIS.InputChanged:Connect(function(i)
+        if i.UserInputType~=Enum.UserInputType.MouseMovement and i.UserInputType~=Enum.UserInputType.Touch then return end
+        if resize and i == ri then
+            if st then st:Cancel() end
+            st=TS:Create(b,ti,{Size=UDim2.fromOffset(i.Position.X-b.AbsolutePosition.X,i.Position.Y-b.AbsolutePosition.Y)})
+            st:Play()
+        elseif drag and i == di then
+            if mt then mt:Cancel() end
+            local d=i.Position-ds
+            mt=TS:Create(b,ti,{Position=UDim2.new(sp.X.Scale,sp.X.Offset+d.X,sp.Y.Scale,sp.Y.Offset+d.Y)})
+            mt:Play()
+            end
+        end)
+    
+    end
+    coroutine.wrap(ETHC_fake_script)()
 	if callback then
-        a.MouseButton1Down:Connect(callback)
+        TextButton.MouseButton1Down:Connect(callback)
     end
 
     return TextButton
