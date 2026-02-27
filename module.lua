@@ -1,17 +1,31 @@
 local scripts = {}
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local VirtualUser = game:GetService("VirtualUser")
+local VirtualInputManager = game:GetService("VirtualInputManager")
+
+local LocalPlayer = Players.LocalPlayer
+
+local fired = false
+
+LocalPlayer.CharacterAdded:Connect(function()
+	fired = false
+end)
+
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Parent = gethui and gethui() or game.CoreGui
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
 function scripts.new_connection(signal, func, unsafe)
-    unsafe = unsafe or false
-    if unsafe then
-        return signal:Connect(func)
-    else
-        return signal:Connect(function(...)
-            pcall(func, ...)
-        end)
-    end
+	unsafe = unsafe or false
+	if unsafe then
+		return signal:Connect(func)
+	else
+		return signal:Connect(function(...)
+			pcall(func, ...)
+		end)
+	end
 end
 
 function scripts.createbutton(text, callback)
@@ -137,6 +151,68 @@ function scripts.createbutton(text, callback)
 	end
 
 	return TextButton
+end
+
+function scripts.fireclick(object)
+	local clickDetector = object:FindFirstChildOfClass("ClickDetector") or object
+	if not clickDetector or not clickDetector:IsA("ClickDetector") then
+		return
+	end
+
+	if getconnections then
+		for _, connection in ipairs(getconnections(clickDetector.MouseClick)) do
+			connection:Fire(LocalPlayer)
+		end
+		return
+	end
+
+	if not fired then
+		fired = true
+		pcall(function()
+			VirtualInputManager:SendKeyEvent(true, 101, false, game)
+		end)
+	end
+
+	local oldParent = clickDetector.Parent
+
+	local stubPart = Instance.new("Part")
+	stubPart.Transparency = 1
+	stubPart.Size = Vector3.new(30, 30, 30)
+	stubPart.Anchored = true
+	stubPart.CanCollide = false
+	stubPart.CFrame = workspace.CurrentCamera.CFrame * CFrame.new(0, 0, -20)
+	stubPart.Parent = workspace
+
+	clickDetector.Parent = stubPart
+	clickDetector.MaxActivationDistance = math.huge
+
+	local connection
+	connection = RunService.Heartbeat:Connect(function()
+		if not stubPart.Parent then
+			connection:Disconnect()
+			return
+		end
+		stubPart.CFrame = workspace.CurrentCamera.CFrame * CFrame.new(0, 0, -20)
+		pcall(function()
+			VirtualUser:ClickButton1(Vector2.new(20, 20), workspace.CurrentCamera.CFrame)
+		end)
+	end)
+
+	clickDetector.MouseClick:Once(function()
+		if connection then connection:Disconnect() end
+		clickDetector.Parent = oldParent
+		stubPart:Destroy()
+	end)
+
+	task.delay(3, function()
+		if connection then connection:Disconnect() end
+		if clickDetector.Parent ~= oldParent then
+			clickDetector.Parent = oldParent
+		end
+		if stubPart then
+			stubPart:Destroy()
+		end
+	end)
 end
 
 return scripts
