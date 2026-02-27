@@ -158,14 +158,6 @@ function scripts.fireclick(object)
 	if not clickDetector or not clickDetector:IsA("ClickDetector") then
 		return
 	end
-
-	if getconnections then
-		for _, connection in ipairs(getconnections(clickDetector.MouseClick)) do
-			connection:Fire(LocalPlayer)
-		end
-		return
-	end
-
 	if not fired then
 		fired = true
 		pcall(function()
