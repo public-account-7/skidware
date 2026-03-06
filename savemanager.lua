@@ -169,6 +169,31 @@ local SaveManager = {} do
 		return true
 	end
 	
+	function SaveManager:GetJsonCFG()
+		local data = {
+			objects = {}
+		}
+
+		for idx, toggle in next, Toggles do
+			if self.Ignore[idx] then continue end
+
+			table.insert(data.objects, self.Parser[toggle.Type].Save(idx, toggle))
+		end
+
+		for idx, option in next, Options do
+			if not self.Parser[option.Type] then continue end
+			if self.Ignore[idx] then continue end
+
+			table.insert(data.objects, self.Parser[option.Type].Save(idx, option))
+		end	
+
+		local success, encoded = pcall(httpService.JSONEncode, httpService, data)
+		if not success then
+			return false, 'failed to encode data'
+		end
+		return encoded
+	end
+	
 	function SaveManager:Delete(name)
 		if (not name) then
 			return false, 'no config file is selected'
