@@ -302,6 +302,7 @@ local SaveManager = {} do
             SaveManager.CurrentConfig = name
 
 			self.Library:Notify(string.format('Auto loaded config %q', name))
+			self.Library:UpdateDependencyBoxes()
 		end
 	end
 
@@ -342,6 +343,7 @@ local SaveManager = {} do
             SaveManager.CurrentConfig = name
 
 			self.Library:Notify(string.format('Loaded config %q', name))
+			self.Library:UpdateDependencyBoxes()
 		end)
 
 		section:AddButton('Overwrite config', function()
