@@ -1,6 +1,6 @@
 --[[
 get skidware now
-1.3
+1.3.1
 ]]
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -2644,7 +2644,7 @@ end
                         Depbox:Resize()
                         return
                     end
-                elseif type(Elem) == "boolean" or type(Elem) == "string" or type(Elem) == "number" then
+                elseif type(Elem) == "boolean" then
                     if Elem ~= Value then
                         Holder.Visible = false
                         Depbox:Resize()
