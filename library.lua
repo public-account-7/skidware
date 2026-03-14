@@ -1,6 +1,6 @@
 --[[
 get skidware now
-1.3.1
+1.3.2
 ]]
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -2418,9 +2418,9 @@ do
                         Table:UpdateButton();
                         Dropdown:Display();
                         
-                        Library:UpdateDependencyBoxes();
                         Library:SafeCallback(Dropdown.Callback, Dropdown.Value);
                         Library:SafeCallback(Dropdown.Changed, Dropdown.Value);
+                        Library:UpdateDependencyBoxes();
 
                         Library:AttemptSave();
                     end;
