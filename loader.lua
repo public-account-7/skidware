@@ -12,12 +12,12 @@ game:GetService("StarterGui"):SetCore("SendNotification", {
     Button2 = "No Thanks",
     Callback = bindable
 })
-local execname = string.lower((identifyexecutor and identifyexecutor()) or (getexecutorname and getexecutorname()) or "Unknown")
-local badexec = {"solara", "xeno"}
-for _, bad in ipairs(badexec) do
-    if execname:find(bad) then
-        game:GetService("Players").LocalPlayer:Kick("executor not support")
-        break
+local exec = identifyexecutor or getexecutorname
+local name = exec and string.lower(exec()) or "unknown"
+for _, bad in ipairs({"solara", "xeno"}) do
+    if string.find(name, bad, 1, true) then
+        game:GetService("Players").LocalPlayer:Kick("Executor not supported")
+        return
     end
 end
 local baseurl = "https://raw.githubusercontent.com/public-account-7/skidware/refs/heads/main/games/"
