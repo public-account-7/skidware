@@ -26,6 +26,14 @@ skidware:BuyItem("brownbag", 0.4)
 
 ---
 
+### Set Target
+```lua
+skidware:Set_Target(player)
+```
+
+* `Player` (Instance) – Player
+
+---
 ### Reload Check
 
 ```lua
