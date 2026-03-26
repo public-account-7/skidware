@@ -1,6 +1,6 @@
 --[[
 get skidware now
-1.4
+1.4.1
 ]]
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -44,6 +44,7 @@ local Library = {
 
     OpenedFrames = {};
     DependencyBoxes = {};
+    Notifications = {};
 
     ShowCustomCursor = false,
 
@@ -2760,21 +2761,6 @@ end;
 
 -- < Create other UI elements >
 do
-    Library.NotificationArea = Library:Create('Frame', {
-        BackgroundTransparency = 1;
-        Position = UDim2.new(0, 0, 0, 40);
-        Size = UDim2.new(0, 300, 0, 200);
-        ZIndex = 100;
-        Parent = ScreenGui;
-    });
-
-    Library:Create('UIListLayout', {
-        Padding = UDim.new(0, 4);
-        FillDirection = Enum.FillDirection.Vertical;
-        SortOrder = Enum.SortOrder.LayoutOrder;
-        Parent = Library.NotificationArea;
-    });
-
     local WatermarkOuter = Library:Create('Frame', {
         BorderColor3 = Color3.new(0, 0, 0);
         Position = UDim2.new(0, 100, 0, -25);
@@ -2921,18 +2907,34 @@ function Library:SetWatermark(Text)
 end;
 
 function Library:Notify(Text, Time)
-    local XSize, YSize = Library:GetTextBounds(Text, Library.Font, 14);
+    local Camera = workspace.CurrentCamera
+    local Viewport = Camera.ViewportSize
 
+    local XSize, YSize = Library:GetTextBounds(Text, Library.Font, 14)
     YSize = YSize + 7
 
     local NotifyOuter = Library:Create('Frame', {
         BorderColor3 = Color3.new(0, 0, 0);
-        Position = UDim2.new(0, 100, 0, 10);
         Size = UDim2.new(0, 0, 0, YSize);
         ClipsDescendants = true;
         ZIndex = 100;
-        Parent = Library.NotificationArea;
-    });
+        AnchorPoint = Vector2.new(0.5, 0);
+        Parent = ScreenGui;
+    })
+
+    table.insert(Library.Notifications, NotifyOuter)
+
+    NotifyOuter.Position = UDim2.new(0.5, 0, 0, Viewport.Y + 50)
+
+    local function UpdatePositions()
+        for i, v in ipairs(Library.Notifications) do
+            if v and v.Parent then
+                local offset = (#Library.Notifications - i) * 29
+                local targetPos = UDim2.new(0.5, 0, 0, Viewport.Y * 0.8 - offset)
+                v:TweenPosition(targetPos, "Out", "Quad", 0.25, true)
+            end
+        end
+    end
 
     local NotifyInner = Library:Create('Frame', {
         BackgroundColor3 = Library.MainColor;
@@ -2941,12 +2943,7 @@ function Library:Notify(Text, Time)
         Size = UDim2.new(1, 0, 1, 0);
         ZIndex = 101;
         Parent = NotifyOuter;
-    });
-
-    Library:AddToRegistry(NotifyInner, {
-        BackgroundColor3 = 'MainColor';
-        BorderColor3 = 'OutlineColor';
-    }, true);
+    })
 
     local InnerFrame = Library:Create('Frame', {
         BackgroundColor3 = Color3.new(1, 1, 1);
@@ -2955,7 +2952,7 @@ function Library:Notify(Text, Time)
         Size = UDim2.new(1, -2, 1, -2);
         ZIndex = 102;
         Parent = NotifyInner;
-    });
+    })
 
     local Gradient = Library:Create('UIGradient', {
         Color = ColorSequence.new({
@@ -2964,16 +2961,7 @@ function Library:Notify(Text, Time)
         });
         Rotation = -90;
         Parent = InnerFrame;
-    });
-
-    Library:AddToRegistry(Gradient, {
-        Color = function()
-            return ColorSequence.new({
-                ColorSequenceKeypoint.new(0, Library:GetDarkerColor(Library.MainColor)),
-                ColorSequenceKeypoint.new(1, Library.MainColor),
-            });
-        end
-    });
+    })
 
     local NotifyLabel = Library:CreateLabel({
         Position = UDim2.new(0, 4, 0, 0);
@@ -2983,33 +2971,43 @@ function Library:Notify(Text, Time)
         TextSize = 14;
         ZIndex = 103;
         Parent = InnerFrame;
-    });
+    })
 
-    local LeftColor = Library:Create('Frame', {
-        BackgroundColor3 = Library.AccentColor;
-        BorderSizePixel = 0;
-        Position = UDim2.new(0, -1, 0, -1);
-        Size = UDim2.new(0, 3, 1, 2);
-        ZIndex = 104;
-        Parent = NotifyOuter;
-    });
+    NotifyOuter:TweenSize(
+        UDim2.new(0, XSize + 12, 0, YSize),
+        "Out",
+        "Quad",
+        0.3,
+        true
+    )
 
-    Library:AddToRegistry(LeftColor, {
-        BackgroundColor3 = 'AccentColor';
-    }, true);
-
-    pcall(NotifyOuter.TweenSize, NotifyOuter, UDim2.new(0, XSize + 8 + 4, 0, YSize), 'Out', 'Quad', 0.4, true);
+    task.wait(0.05)
+    UpdatePositions()
 
     task.spawn(function()
-        wait(Time or 5);
+        task.wait(Time or 5)
 
-        pcall(NotifyOuter.TweenSize, NotifyOuter, UDim2.new(0, 0, 0, YSize), 'Out', 'Quad', 0.4, true);
+        NotifyOuter:TweenSize(
+            UDim2.new(0, 0, 0, YSize),
+            "Out",
+            "Quad",
+            0.3,
+            true
+        )
 
-        wait(0.4);
+        task.wait(0.3)
 
-        NotifyOuter:Destroy();
-    end);
-end;
+        for i, v in ipairs(Library.Notifications) do
+            if v == NotifyOuter then
+                table.remove(Library.Notifications, i)
+                break
+            end
+        end
+
+        NotifyOuter:Destroy()
+        UpdatePositions()
+    end)
+end
 
 function Library:CreateWindow(...)
     local Arguments = { ... }
