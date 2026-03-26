@@ -217,19 +217,6 @@ Plugin:AddButton("Notify", function()
 end)
 ```
 
----
-
-## Notes
-
-* Some features depend on executor support
-* Always check if `skidware` exists before using
-* Avoid spamming `BuyItem` to prevent issues
-* UI elements return objects that can be chained
-
----
-
-## Tips
-
 * Use clear names for UI elements
 * Cache values if used frequently
 * Keep plugins lightweight for performance
