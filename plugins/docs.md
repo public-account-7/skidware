@@ -1,13 +1,3 @@
-````md
-local skidware = getgenv().skidware
-
-if not skidware then
-    return
-end
-````
-
----
-
 ## API Reference
 
 ### Target Info
