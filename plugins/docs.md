@@ -216,10 +216,3 @@ Plugin:AddButton("Notify", function()
     skidware:Notify("hi", 5)
 end)
 ```
-
-* Use clear names for UI elements
-* Cache values if used frequently
-* Keep plugins lightweight for performance
-
-```
-```
