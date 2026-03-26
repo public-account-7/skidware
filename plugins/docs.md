@@ -1,5 +1,4 @@
 ````md
-```lua
 local skidware = getgenv().skidware
 
 if not skidware then
