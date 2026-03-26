@@ -157,38 +157,21 @@ Parameters:
 
 ---
 
-## UI Groupboxes
+## UI
 
-### Left Groupbox
-
-```lua
-local box = skidware:AddLeftGroupbox("Title")
-```
-
-Returns:
-
-* `Groupbox`
-
----
-
-### Right Groupbox
+### Add New Tab
 
 ```lua
-local box = skidware:AddRightGroupbox("Title")
+local tab = skidware:AddTab("Title")
 ```
 
-Returns:
-
-* `Groupbox`
-
----
-
-## Example Plugin
+## Example
 
 ```lua
 if not skidware then return end
 
-local Plugin = skidware:AddLeftGroupbox("Example")
+local tab = skidware:AddTab("Title")
+local Plugin = tab:AddLeftGroupbox("Example")
 
 Plugin:AddToggle("Toggle 1", {
     Text = "Toggle 1",
@@ -209,4 +192,5 @@ end)
 Plugin:AddButton("Notify", function()
     skidware:notify("hi", 5)
 end)
+--//other thing like dropdown etc based on linoria example
 ```
