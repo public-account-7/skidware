@@ -1,6 +1,6 @@
 --[[
 get skidware now
-1.4.1
+1.4.2
 ]]
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -227,6 +227,99 @@ function Library:MakeDraggable(Instance, Cutoff)
     end)
 end
 
+function Library:MakeDraggableOutline(Instance, Cutoff)
+	Instance.Active = true
+
+	local Dragging = false
+	local StartPos
+	local StartFramePos
+
+	local moveConn
+	local endConn
+
+	Instance.InputBegan:Connect(function(Input)
+		if (Input.UserInputType == Enum.UserInputType.MouseButton1 
+		or Input.UserInputType == Enum.UserInputType.Touch) then
+			
+			local ObjPos = Vector2.new(
+				Input.Position.X - Instance.AbsolutePosition.X,
+				Input.Position.Y - Instance.AbsolutePosition.Y
+			)
+
+			if ObjPos.Y > (Cutoff or 40) then
+				return
+			end
+
+			Dragging = true
+			StartPos = Input.Position
+			StartFramePos = Instance.Position
+
+			local frame = Library:Create("Frame", {
+				Parent = ScreenGui,
+				AnchorPoint = Instance.AnchorPoint,
+				BackgroundTransparency = 1,
+				Size = Instance.Size,
+				Position = Instance.Position,
+			})
+
+			local uistroke = Library:Create("UIStroke", {
+				Parent = frame,
+				Color = Library.AccentColor or Color3.new(0, 0, 0),
+				Transparency = 1,
+				Thickness = 1
+			})
+
+			TweenService:Create(
+				uistroke,
+				TweenInfo.new(0.12, Enum.EasingStyle.Sine, Enum.EasingDirection.Out),
+				{ Transparency = 0, Thickness = 2 }
+			):Play()
+
+			moveConn = InputService.InputChanged:Connect(function(input)
+				if Dragging and (
+					input.UserInputType == Enum.UserInputType.MouseMovement 
+					or input.UserInputType == Enum.UserInputType.Touch
+				) then
+					local Delta = input.Position - StartPos
+
+					frame.Position = UDim2.new(
+						StartFramePos.X.Scale,
+						StartFramePos.X.Offset + Delta.X,
+						StartFramePos.Y.Scale,
+						StartFramePos.Y.Offset + Delta.Y
+					)
+				end
+			end)
+
+			endConn = InputService.InputEnded:Connect(function(input)
+				if input.UserInputType == Enum.UserInputType.MouseButton1 
+				or input.UserInputType == Enum.UserInputType.Touch then
+					
+					if Dragging then
+						Dragging = false
+
+						Instance.Position = frame.Position
+
+						local tween = TweenService:Create(
+							uistroke,
+							TweenInfo.new(0.1, Enum.EasingStyle.Sine, Enum.EasingDirection.Out),
+							{ Transparency = 1, Thickness = 1 }
+						)
+
+						tween:Play()
+						tween.Completed:Connect(function()
+							frame:Destroy()
+						end)
+
+						if moveConn then moveConn:Disconnect() end
+						if endConn then endConn:Disconnect() end
+					end
+				end
+			end)
+		end
+	end)
+end
+
 function Library:AddToolTip(InfoStr, HoverInstance)
     local X, Y = Library:GetTextBounds(InfoStr, Library.Font, 14);
     local Tooltip = Library:Create('Frame', {
@@ -286,30 +379,46 @@ function Library:AddToolTip(InfoStr, HoverInstance)
 end
 
 function Library:OnHighlight(HighlightInstance, Instance, Properties, PropertiesDefault)
+    local TweenInfo = TweenInfo.new(
+        0.15,
+        Enum.EasingStyle.Quad,
+        Enum.EasingDirection.Out
+    )
+
+    local CurrentTween
+
+    local function PlayTween(TargetProps)
+        if CurrentTween then
+            CurrentTween:Cancel()
+        end
+
+        local Goal = {}
+
+        for Property, ColorIdx in next, TargetProps do
+            Goal[Property] = Library[ColorIdx] or ColorIdx
+        end
+
+        CurrentTween = TweenService:Create(Instance, TweenInfo, Goal)
+        CurrentTween:Play()
+
+        local Reg = Library.RegistryMap[Instance]
+        if Reg then
+            for Property, ColorIdx in next, TargetProps do
+                if Reg.Properties[Property] then
+                    Reg.Properties[Property] = ColorIdx
+                end
+            end
+        end
+    end
+
     HighlightInstance.MouseEnter:Connect(function()
-        local Reg = Library.RegistryMap[Instance];
-
-        for Property, ColorIdx in next, Properties do
-            Instance[Property] = Library[ColorIdx] or ColorIdx;
-
-            if Reg and Reg.Properties[Property] then
-                Reg.Properties[Property] = ColorIdx;
-            end;
-        end;
+        PlayTween(Properties)
     end)
 
     HighlightInstance.MouseLeave:Connect(function()
-        local Reg = Library.RegistryMap[Instance];
-
-        for Property, ColorIdx in next, PropertiesDefault do
-            Instance[Property] = Library[ColorIdx] or ColorIdx;
-
-            if Reg and Reg.Properties[Property] then
-                Reg.Properties[Property] = ColorIdx;
-            end;
-        end;
+        PlayTween(PropertiesDefault)
     end)
-end;
+end
 
 function Library:MouseIsOverOpenedFrame()
     for Frame, _ in next, Library.OpenedFrames do
@@ -857,7 +966,7 @@ do
             Position = UDim2.fromOffset(5, 5);
             TextXAlignment = Enum.TextXAlignment.Left;
             TextSize = 14;
-            Text = ColorPicker.Title,--Info.Default;
+            Text = ColorPicker.Title,
             TextWrapped = false;
             ZIndex = 16;
             Parent = PickerFrameInner;
@@ -874,6 +983,7 @@ do
                 return Library:Notify('You have not copied a color!', 2)
             end
             ColorPicker:SetValueRGB(Library.ColorClipboard)
+            Library:Notify('Pasted Color!', 2)
             ContextMenu:Hide();
         end)
 		ContextMenu:AddOption('Copy Flag', function()
@@ -926,29 +1036,73 @@ do
         end)
 
         function ColorPicker:Display()
-            ColorPicker.Value = Color3.fromHSV(ColorPicker.Hue, ColorPicker.Sat, ColorPicker.Vib);
-            SatVibMap.BackgroundColor3 = Color3.fromHSV(ColorPicker.Hue, 1, 1);
+            if not ColorPicker._Tween then
+                ColorPicker._Tween = {}
+            end
 
-            Library:Create(DisplayFrame, {
-                BackgroundColor3 = ColorPicker.Value;
-                BackgroundTransparency = ColorPicker.Transparency;
-                BorderColor3 = Library:GetDarkerColor(ColorPicker.Value);
-            });
+            ColorPicker.Value = Color3.fromHSV(ColorPicker.Hue, ColorPicker.Sat, ColorPicker.Vib)
+
+            if ColorPicker._Tween.Sat then
+                ColorPicker._Tween.Sat:Cancel()
+            end
+
+            ColorPicker._Tween.Sat = TweenService:Create(SatVibMap, TweenInfo.new(0.15), {
+                BackgroundColor3 = Color3.fromHSV(ColorPicker.Hue, 1, 1)
+            })
+
+            ColorPicker._Tween.Sat:Play()
+
+            if ColorPicker._Tween.Display then
+                ColorPicker._Tween.Display:Cancel()
+            end
+
+            ColorPicker._Tween.Display = TweenService:Create(DisplayFrame, TweenInfo.new(
+                0.15,
+                Enum.EasingStyle.Quad,
+                Enum.EasingDirection.Out
+            ), {
+                BackgroundColor3 = ColorPicker.Value,
+                BackgroundTransparency = ColorPicker.Transparency,
+                BorderColor3 = Library:GetDarkerColor(ColorPicker.Value)
+            })
+
+            ColorPicker._Tween.Display:Play()
+
+            if ColorPicker._Tween.Cursor then
+                ColorPicker._Tween.Cursor:Cancel()
+            end
+
+            ColorPicker._Tween.Cursor = TweenService:Create(CursorOuter, TweenInfo.new(0.1), {
+                Position = UDim2.new(ColorPicker.Sat, 0, 1 - ColorPicker.Vib, 0)
+            })
+
+            ColorPicker._Tween.Cursor:Play()
+
+            if ColorPicker._Tween.Hue then
+                ColorPicker._Tween.Hue:Cancel()
+            end
+
+            ColorPicker._Tween.Hue = TweenService:Create(HueCursor, TweenInfo.new(0.1), {
+                Position = UDim2.new(0, 0, ColorPicker.Hue, 0)
+            })
+
+            ColorPicker._Tween.Hue:Play()
 
             if TransparencyBoxInner then
-                TransparencyBoxInner.BackgroundColor3 = ColorPicker.Value;
-                TransparencyCursor.Position = UDim2.new(1 - ColorPicker.Transparency, 0, 0, 0);
-            end;
-
-            CursorOuter.Position = UDim2.new(ColorPicker.Sat, 0, 1 - ColorPicker.Vib, 0);
-            HueCursor.Position = UDim2.new(0, 0, ColorPicker.Hue, 0);
+                TransparencyBoxInner.BackgroundColor3 = ColorPicker.Value
+                TransparencyCursor.Position = UDim2.new(1 - ColorPicker.Transparency, 0, 0, 0)
+            end
 
             HueBox.Text = '#' .. ColorPicker.Value:ToHex()
-            RgbBox.Text = table.concat({ math.floor(ColorPicker.Value.R * 255), math.floor(ColorPicker.Value.G * 255), math.floor(ColorPicker.Value.B * 255) }, ', ')
+            RgbBox.Text = table.concat({
+                math.floor(ColorPicker.Value.R * 255),
+                math.floor(ColorPicker.Value.G * 255),
+                math.floor(ColorPicker.Value.B * 255)
+            }, ', ')
 
-            Library:SafeCallback(ColorPicker.Callback, ColorPicker.Value);
-            Library:SafeCallback(ColorPicker.Changed, ColorPicker.Value);
-        end;
+            Library:SafeCallback(ColorPicker.Callback, ColorPicker.Value)
+            Library:SafeCallback(ColorPicker.Changed, ColorPicker.Value)
+        end
 
         function ColorPicker:OnChanged(Func)
             ColorPicker.Changed = Func;
@@ -1263,8 +1417,7 @@ function Funcs:AddKeyPicker(Idx, Info)
             if KeyPicker.Value == 'None' then return false end
             local Key = KeyPicker.Value
             if Key == 'MB1' or Key == 'MB2' then
-                return Key == 'MB1' and InputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1 or Enum.UserInputType.Touch)
-                    or Key == 'MB2' and InputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton2)
+                return Key == 'MB1' and InputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) or Key == 'MB2' and InputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton2)
             else
                 local keyCode = Enum.KeyCode[KeyPicker.Value]
                 if keyCode then
@@ -1907,13 +2060,32 @@ do
             Library:AddToolTip(Info.Tooltip, ToggleRegion)
         end
 
-        function Toggle:Display()
-            ToggleInner.BackgroundColor3 = Toggle.Value and Library.AccentColor or Library.MainColor;
-            ToggleInner.BorderColor3 = Toggle.Value and Library.AccentColorDark or Library.OutlineColor;
+        function Toggle:Display(instant)
+            if Toggle._tween then
+                Toggle._tween:Cancel()
+            end
 
-            Library.RegistryMap[ToggleInner].Properties.BackgroundColor3 = Toggle.Value and 'AccentColor' or 'MainColor';
-            Library.RegistryMap[ToggleInner].Properties.BorderColor3 = Toggle.Value and 'AccentColorDark' or 'OutlineColor';
-        end;
+            local bg = Toggle.Value and Library.AccentColor or Library.MainColor
+            local border = Toggle.Value and Library.AccentColorDark or Library.OutlineColor
+
+            if instant then
+                ToggleInner.BackgroundColor3 = bg
+                ToggleInner.BorderColor3 = border
+            else
+                Toggle._tween = TweenService:Create(
+                    ToggleInner,
+                    TweenInfo.new(0.165, Enum.EasingStyle.Sine, Enum.EasingDirection.Out),
+                    {
+                        BackgroundColor3 = bg,
+                        BorderColor3 = border
+                    }
+                )
+                Toggle._tween:Play()
+            end
+
+            Library.RegistryMap[ToggleInner].Properties.BackgroundColor3 = Toggle.Value and 'AccentColor' or 'MainColor'
+            Library.RegistryMap[ToggleInner].Properties.BorderColor3 = Toggle.Value and 'AccentColorDark' or 'OutlineColor'
+        end
 
         function Toggle:OnChanged(Func)
             Toggle.Changed = Func;
@@ -1958,7 +2130,7 @@ do
             Library:AddToRegistry(ToggleLabel, { TextColor3 = 'RiskColor' })
         end
 
-        Toggle:Display();
+        Toggle:Display(true);
         Groupbox:AddBlank(Info.BlankSize or 5 + 2);
         Groupbox:Resize();
 
@@ -2081,7 +2253,7 @@ do
             Fill.BorderColor3 = Library.AccentColorDark;
         end;
 
-        function Slider:Display()
+        function Slider:Display(instant)
             local Suffix = Info.Suffix or ''
 
             if Info.Compact then
@@ -2096,10 +2268,25 @@ do
             local relativeValue = Slider.Value - Slider.Min
             local X = math.ceil((relativeValue / totalRange) * Slider.MaxSize)
 
-            Fill.Size = UDim2.new(0, X, 1, 0)
+            if Slider._tween then
+                Slider._tween:Cancel()
+            end
+
+            if instant then
+                Fill.Size = UDim2.new(0, X, 1, 0)
+            else
+                Slider._tween = TweenService:Create(
+                    Fill,
+                    TweenInfo.new(0.12, Enum.EasingStyle.Sine, Enum.EasingDirection.Out),
+                    {
+                        Size = UDim2.new(0, X, 1, 0)
+                    }
+                )
+                Slider._tween:Play()
+            end
+
             HideBorderRight.Visible = not (X == Slider.MaxSize or X == 0)
         end
-
 
         function Slider:OnChanged(Func)
             Slider.Changed = Func;
@@ -2166,7 +2353,7 @@ do
             end;
         end);
 
-        Slider:Display();
+        Slider:Display(true);
         Groupbox:AddBlank(Info.BlankSize or 6);
         Groupbox:Resize();
 
@@ -2305,6 +2492,8 @@ do
             BorderColor3 = Color3.new(0, 0, 0);
             ZIndex = 20;
             Visible = false;
+            ClipsDescendants = true;
+            Size = UDim2.fromOffset(DropdownOuter.AbsoluteSize.X + 0.5, 0);
             Parent = ScreenGui;
         });
 
@@ -2527,41 +2716,86 @@ do
         end;
 
         function Dropdown:Refresh(NewValues)
-    if NewValues then
-        Dropdown.Values = NewValues
-    elseif Dropdown.SpecialType == 'Player' then
-        Dropdown.Values = GetPlayersString()
-    elseif Dropdown.SpecialType == 'Team' then
-        Dropdown.Values = GetTeamsString()
-    end
-
-    if Dropdown.Multi then
-        for Value in next, Dropdown.Value do
-            if not table.find(Dropdown.Values, Value) then
-                Dropdown.Value[Value] = nil
+            if NewValues then
+                Dropdown.Values = NewValues
+            elseif Dropdown.SpecialType == 'Player' then
+                Dropdown.Values = GetPlayersString()
+            elseif Dropdown.SpecialType == 'Team' then
+                Dropdown.Values = GetTeamsString()
             end
-        end
-    else
-        if Dropdown.Value and not table.find(Dropdown.Values, Dropdown.Value) then
-            Dropdown.Value = nil
-        end
-    end
 
-    Dropdown:BuildDropdownList()
-    Dropdown:Display()
-end
+            if Dropdown.Multi then
+                for Value in next, Dropdown.Value do
+                    if not table.find(Dropdown.Values, Value) then
+                        Dropdown.Value[Value] = nil
+                    end
+                end
+            else
+                if Dropdown.Value and not table.find(Dropdown.Values, Dropdown.Value) then
+                    Dropdown.Value = nil
+                end
+            end
+
+            Dropdown:BuildDropdownList()
+            Dropdown:Display()
+        end
 
         function Dropdown:OpenDropdown()
             ListOuter.Visible = true;
             Library.OpenedFrames[ListOuter] = true;
-            DropdownArrow.Rotation = 180;
-        end;
+
+            local targetY = math.clamp(GetTableSize(Dropdown.Values) * 20, 0, MAX_DROPDOWN_ITEMS * 20) + 1
+
+            if Dropdown._tween then
+                Dropdown._tween:Cancel()
+            end
+
+            Dropdown._tween = TweenService:Create(
+                ListOuter,
+                TweenInfo.new(0.18, Enum.EasingStyle.Sine, Enum.EasingDirection.Out),
+                {
+                    Size = UDim2.fromOffset(DropdownOuter.AbsoluteSize.X + 0.5, targetY)
+                }
+            )
+
+            Dropdown._tween:Play()
+
+            TweenService:Create(
+                DropdownArrow,
+                TweenInfo.new(0.18, Enum.EasingStyle.Sine, Enum.EasingDirection.Out),
+                { Rotation = 180 }
+            ):Play()
+        end
 
         function Dropdown:CloseDropdown()
-            ListOuter.Visible = false;
             Library.OpenedFrames[ListOuter] = nil;
-            DropdownArrow.Rotation = 0;
-        end;
+
+            if Dropdown._tween then
+                Dropdown._tween:Cancel()
+            end
+
+            Dropdown._tween = TweenService:Create(
+                ListOuter,
+                TweenInfo.new(0.14, Enum.EasingStyle.Sine, Enum.EasingDirection.Out),
+                {
+                    Size = UDim2.fromOffset(DropdownOuter.AbsoluteSize.X + 0.5, 0)
+                }
+            )
+
+            Dropdown._tween:Play()
+
+            TweenService:Create(
+                DropdownArrow,
+                TweenInfo.new(0.14, Enum.EasingStyle.Sine, Enum.EasingDirection.Out),
+                { Rotation = 0 }
+            ):Play()
+
+            task.delay(0.14, function()
+                if ListOuter then
+                    ListOuter.Visible = false
+                end
+            end)
+        end
 
         function Dropdown:OnChanged(Func)
             Dropdown.Changed = Func;
@@ -2732,16 +2966,16 @@ end
             Depbox:Resize()
         end
 
-function Depbox:SetupDependencies(Dependencies)
-    for _, Dependency in next, Dependencies do
-        assert(type(Dependency) == "table", "SetupDependencies: Dependency is not of type `table`.")
-        assert(Dependency[1] ~= nil, "SetupDependencies: Dependency is missing element or condition argument.")
-        assert(Dependency[2] ~= nil, "SetupDependencies: Dependency is missing value argument.")
-    end
+        function Depbox:SetupDependencies(Dependencies)
+            for _, Dependency in next, Dependencies do
+                assert(type(Dependency) == "table", "SetupDependencies: Dependency is not of type `table`.")
+                assert(Dependency[1] ~= nil, "SetupDependencies: Dependency is missing element or condition argument.")
+                assert(Dependency[2] ~= nil, "SetupDependencies: Dependency is missing value argument.")
+            end
 
-    Depbox.Dependencies = Dependencies
-    Depbox:Update()
-end
+            Depbox.Dependencies = Dependencies
+            Depbox:Update()
+        end
 
 
         Depbox.Container = Frame;
@@ -2767,6 +3001,7 @@ do
         Size = UDim2.new(0, 213, 0, 20);
         ZIndex = 200;
         Visible = false;
+        ClipsDescendants = false;
         Parent = ScreenGui;
     });
 
@@ -2822,8 +3057,6 @@ do
     Library.Watermark = WatermarkOuter;
     Library.WatermarkText = WatermarkLabel;
     Library:MakeDraggable(Library.Watermark);
-
-
 
     local KeybindOuter = Library:Create('Frame', {
         AnchorPoint = Vector2.new(0, 0.5);
@@ -3033,6 +3266,7 @@ function Library:Notify(Text, Time)
         UpdatePositions()
     end)
 end
+
 function Library:CreateWindow(...)
     local Arguments = { ... }
     local Config = { AnchorPoint = Vector2.zero }
@@ -3074,7 +3308,7 @@ function Library:CreateWindow(...)
         Parent = ScreenGui;
     });
 
-    Library:MakeDraggable(Outer, 25);
+    Library:MakeDraggableOutline(Outer, 25);
 
     local Inner = Library:Create('Frame', {
         BackgroundColor3 = Library.MainColor;
@@ -3086,16 +3320,33 @@ function Library:CreateWindow(...)
         Parent = Outer;
     });
 
+	local GlowImage = Library:Create('ImageLabel', {
+	    BackgroundTransparency = 1,
+	    Image = "rbxassetid://5028857084",
+	    ImageColor3 = Library.AccentColor,
+	    ScaleType = Enum.ScaleType.Slice,
+	    SliceCenter = Rect.new(24, 24, 252, 252),
+	    Size = UDim2.new(1, 31, 1, 31),
+	    AnchorPoint = Vector2.new(0.5, 0.5),
+        Position = UDim2.new(0.5, 0, 0.5, 0),
+	    ZIndex = 0,
+	    Parent = Outer,
+	});
+
     Library:AddToRegistry(Inner, {
         BackgroundColor3 = 'MainColor';
         BorderColor3 = 'AccentColor';
     });
 
+    Library:AddToRegistry(GlowImage, {
+        ImageColor3 = 'AccentColor';
+    });
+
     local WindowLabel = Library:CreateLabel({
-        Position = UDim2.new(0, 7, 0, 0);
-        Size = UDim2.new(0, 0, 0, 25);
+        Position = UDim2.new(0, 0, 0, 0);
+        Size = UDim2.new(1, 0, 0, 25);
         Text = Config.Title or '';
-        TextXAlignment = Enum.TextXAlignment.Left;
+        TextXAlignment = Enum.TextXAlignment.Center;
         ZIndex = 1;
         Parent = Inner;
     });
