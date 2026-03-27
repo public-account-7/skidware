@@ -2922,15 +2922,40 @@ function Library:Notify(Text, Time)
         Parent = ScreenGui;
     })
 
+    if #Library.Notifications >= 7 then
+        local oldest = table.remove(Library.Notifications, 1)
+        if oldest then
+            oldest:TweenPosition(
+                UDim2.new(0.5, 0, 0, Viewport.Y + YSize),
+                "Out",
+                "Quad",
+                0.25,
+                true
+            )
+            oldest:TweenSize(
+                UDim2.new(0, 0, 0, YSize),
+                "Out",
+                "Quad",
+                0.25,
+                true
+            )
+            task.delay(0.25, function()
+                if oldest then
+                    oldest:Destroy()
+                end
+            end)
+        end
+    end
+
     table.insert(Library.Notifications, NotifyOuter)
 
-    NotifyOuter.Position = UDim2.new(0.5, 0, 0, Viewport.Y + 50)
+    NotifyOuter.Position = UDim2.new(0.5, 0, 0, Viewport.Y + YSize)
 
     local function UpdatePositions()
         for i, v in ipairs(Library.Notifications) do
             if v and v.Parent then
                 local offset = (#Library.Notifications - i) * 29
-                local targetPos = UDim2.new(0.5, 0, 0, Viewport.Y * 0.8 - offset)
+                local targetPos = UDim2.new(0.5, 0, 0, Viewport.Y * 0.77 - offset)
                 v:TweenPosition(targetPos, "Out", "Quad", 0.25, true)
             end
         end
@@ -2954,7 +2979,7 @@ function Library:Notify(Text, Time)
         Parent = NotifyInner;
     })
 
-    local Gradient = Library:Create('UIGradient', {
+    Library:Create('UIGradient', {
         Color = ColorSequence.new({
             ColorSequenceKeypoint.new(0, Library:GetDarkerColor(Library.MainColor)),
             ColorSequenceKeypoint.new(1, Library.MainColor),
@@ -2963,7 +2988,7 @@ function Library:Notify(Text, Time)
         Parent = InnerFrame;
     })
 
-    local NotifyLabel = Library:CreateLabel({
+    Library:CreateLabel({
         Position = UDim2.new(0, 4, 0, 0);
         Size = UDim2.new(1, -4, 1, 0);
         Text = Text;
@@ -3008,7 +3033,6 @@ function Library:Notify(Text, Time)
         UpdatePositions()
     end)
 end
-
 function Library:CreateWindow(...)
     local Arguments = { ... }
     local Config = { AnchorPoint = Vector2.zero }
