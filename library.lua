@@ -1,6 +1,6 @@
 --[[
 get skidware now
-1.4.2
+1.4.25
 ]]
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -500,16 +500,6 @@ function Library:RemoveFromRegistry(Instance)
 end;
 
 function Library:UpdateColorsUsingRegistry()
-    -- TODO: Could have an 'active' list of objects
-    -- where the active list only contains Visible objects.
-
-    -- IMPL: Could setup .Changed events on the AddToRegistry function
-    -- that listens for the 'Visible' propert being changed.
-    -- Visible: true => Add to active list, and call UpdateColors function
-    -- Visible: false => Remove from active list.
-
-    -- The above would be especially efficient for a rainbow menu color or live color-changing.
-
     for Idx, Object in next, Library.Registry do
         for Property, ColorIdx in next, Object.Properties do
             if type(ColorIdx) == 'string' then
@@ -519,7 +509,12 @@ function Library:UpdateColorsUsingRegistry()
             end
         end;
     end;
-end;
+
+    for _, Toggle in next, Toggles do
+        Toggle:Display(true)
+    end
+end
+
 
 function Library:GiveSignal(Signal)
     -- Only used for signals not attached to library instances, as those should be cleaned up on object destruction by Roblox
