@@ -2949,12 +2949,12 @@ function Library:Notify(Text, Time)
 
     table.insert(Library.Notifications, NotifyOuter)
 
-    NotifyOuter.Position = UDim2.new(0.5, 0, 0, Viewport.Y + YSize)
+    NotifyOuter.Position = UDim2.new(0.5, 0, 0, Viewport.Y)
 
     local function UpdatePositions()
         for i, v in ipairs(Library.Notifications) do
             if v and v.Parent then
-                local offset = (#Library.Notifications - i) * 29
+                local offset = (#Library.Notifications - i) * 26
                 local targetPos = UDim2.new(0.5, 0, 0, Viewport.Y * 0.77 - offset)
                 v:TweenPosition(targetPos, "Out", "Quad", 0.25, true)
             end
