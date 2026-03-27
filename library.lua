@@ -2922,7 +2922,7 @@ function Library:Notify(Text, Time)
         Parent = ScreenGui;
     })
 
-    if #Library.Notifications >= 7 then
+    if #Library.Notifications >= 10 then
         local oldest = table.remove(Library.Notifications, 1)
         if oldest then
             oldest:TweenPosition(
