@@ -234,7 +234,7 @@ local SaveManager = {} do
 				warn(("[option: %s] is not found, skipping..."):format(tostring(option.type)))
 			end
 		end
-    	local time = decoded.lastUpdated
+    	local time = decoded.lastupd
     	if time then
         	local formatted = os.date("%Y-%m-%d %H:%M:%S", time)
         	SaveManager.LastUpdatedLabel:SetText("Last Updated: " .. formatted)
