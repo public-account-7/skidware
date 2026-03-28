@@ -144,7 +144,8 @@ local SaveManager = {} do
 		local fullPath = self.Folder .. '/settings/' .. name .. '.json'
 
 		local data = {
-			objects = {}
+			objects = {},
+			lastupd = os.time()
 		}
 
 		for idx, toggle in next, Toggles do
@@ -171,7 +172,8 @@ local SaveManager = {} do
 	
 	function SaveManager:GetJsonCFG()
 		local data = {
-			objects = {}
+			objects = {},
+			lastupd = os.time()
 		}
 
 		for idx, toggle in next, Toggles do
@@ -232,7 +234,13 @@ local SaveManager = {} do
 				warn(("[option: %s] is not found, skipping..."):format(tostring(option.type)))
 			end
 		end
-
+    	local time = decoded.lastUpdated
+    	if time then
+        	local formatted = os.date("%Y-%m-%d %H:%M:%S", time)
+        	SaveManager.LastUpdatedLabel:SetText("Last Updated: " .. formatted)
+    	else
+        	SaveManager.LastUpdatedLabel:SetText("Last Updated: nil")
+    	end
 		return true
 	end
 
@@ -383,6 +391,7 @@ local SaveManager = {} do
 		end)
 
 		SaveManager.AutoloadLabel = section:AddLabel('Current autoload config: none', true)
+		SaveManager.LastUpdatedLabel = section:AddLabel('Last Updated: nil', true)
 
 		if isfile(self.Folder .. '/settings/autoload.txt') then
 			local name = readfile(self.Folder .. '/settings/autoload.txt')
