@@ -2383,6 +2383,7 @@ do
             Callback = Info.Callback or function(Value) end;
 
             OriginalText = Info.Text; Text = Info.Text;
+            Idx = Idx;
         };
 
         local DropdownLabel;
@@ -2880,6 +2881,13 @@ do
             Dropdown:BuildDropdownList();
             Dropdown:Display();
         end
+        
+		local contextmenu = Library:AddContextMenu(DropdownOuter);
+		contextmenu:AddOption('Copy Flag', function()
+			pcall(setclipboard, Dropdown.Idx);
+			task.wait(); Library:Notify('Copied flag to clipboard!', 2);
+			contextmenu:Hide();
+		end);
 
         Groupbox:AddBlank(Info.BlankSize or 5);
         Groupbox:Resize();
