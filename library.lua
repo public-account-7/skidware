@@ -270,7 +270,7 @@ function Library:MakeDraggableOutline(Instance, Cutoff)
 
 			local connection
 			connection = InputService.InputChanged:Connect(function(inputChanged)
-				if inputChanged == dragInput and dragging then
+				if dragging and (inputChanged.UserInputType == Enum.UserInputType.MouseMovement or inputChanged.UserInputType == Enum.UserInputType.Touch) then
 					local pos = inputChanged.Position
 
 					frame.Position = UDim2.new(
