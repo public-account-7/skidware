@@ -1,6 +1,6 @@
 --[[
 get skidware now
-1.4.25
+1.4.3
 ]]
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -230,29 +230,28 @@ end
 function Library:MakeDraggableOutline(Instance, Cutoff)
 	Instance.Active = true
 
-	local Dragging = false
-	local StartPos
-	local StartFramePos
+	local dragging = false
+	local dragInput
+	local startPos
+	local objPos
 
-	local moveConn
-	local endConn
-
-	Instance.InputBegan:Connect(function(Input)
-		if (Input.UserInputType == Enum.UserInputType.MouseButton1 
-		or Input.UserInputType == Enum.UserInputType.Touch) then
+	Instance.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 
+		or input.UserInputType == Enum.UserInputType.Touch then
 			
-			local ObjPos = Vector2.new(
-				Input.Position.X - Instance.AbsolutePosition.X,
-				Input.Position.Y - Instance.AbsolutePosition.Y
+			local pos = input.Position
+
+			objPos = Vector2.new(
+				pos.X - Instance.AbsolutePosition.X,
+				pos.Y - Instance.AbsolutePosition.Y
 			)
 
-			if ObjPos.Y > (Cutoff or 40) then
+			if objPos.Y > (Cutoff or 40) then
 				return
 			end
 
-			Dragging = true
-			StartPos = Input.Position
-			StartFramePos = Instance.Position
+			dragging = true
+			dragInput = input
 
 			local frame = Library:Create("Frame", {
 				Parent = ScreenGui,
@@ -265,55 +264,43 @@ function Library:MakeDraggableOutline(Instance, Cutoff)
 			local uistroke = Library:Create("UIStroke", {
 				Parent = frame,
 				Color = Library.AccentColor or Color3.new(0, 0, 0),
-				Transparency = 1,
-				Thickness = 1
 			})
 
-			TweenService:Create(
-				uistroke,
-				TweenInfo.new(0.12, Enum.EasingStyle.Sine, Enum.EasingDirection.Out),
-				{ Transparency = 0, Thickness = 2 }
-			):Play()
+			startPos = Instance.Position
 
-			moveConn = InputService.InputChanged:Connect(function(input)
-				if Dragging and (
-					input.UserInputType == Enum.UserInputType.MouseMovement 
-					or input.UserInputType == Enum.UserInputType.Touch
-				) then
-					local Delta = input.Position - StartPos
+			local connection
+			connection = InputService.InputChanged:Connect(function(inputChanged)
+				if inputChanged == dragInput and dragging then
+					local pos = inputChanged.Position
 
 					frame.Position = UDim2.new(
-						StartFramePos.X.Scale,
-						StartFramePos.X.Offset + Delta.X,
-						StartFramePos.Y.Scale,
-						StartFramePos.Y.Offset + Delta.Y
+						0,
+						pos.X - objPos.X + (Instance.Size.X.Offset * Instance.AnchorPoint.X),
+						0,
+						pos.Y - objPos.Y + (Instance.Size.Y.Offset * Instance.AnchorPoint.Y)
 					)
+
+					uistroke.Color = Library.AccentColor or Color3.new(0, 0, 0)
 				end
 			end)
 
-			endConn = InputService.InputEnded:Connect(function(input)
-				if input.UserInputType == Enum.UserInputType.MouseButton1 
-				or input.UserInputType == Enum.UserInputType.Touch then
-					
-					if Dragging then
-						Dragging = false
+			local endConnection
+			endConnection = InputService.InputEnded:Connect(function(inputEnded)
+				if inputEnded == dragInput then
+					dragging = false
 
-						Instance.Position = frame.Position
+					local pos = inputEnded.Position
 
-						local tween = TweenService:Create(
-							uistroke,
-							TweenInfo.new(0.1, Enum.EasingStyle.Sine, Enum.EasingDirection.Out),
-							{ Transparency = 1, Thickness = 1 }
-						)
+					Instance.Position = UDim2.new(
+						0,
+						pos.X - objPos.X + (Instance.Size.X.Offset * Instance.AnchorPoint.X),
+						0,
+						pos.Y - objPos.Y + (Instance.Size.Y.Offset * Instance.AnchorPoint.Y)
+					)
 
-						tween:Play()
-						tween.Completed:Connect(function()
-							frame:Destroy()
-						end)
-
-						if moveConn then moveConn:Disconnect() end
-						if endConn then endConn:Disconnect() end
-					end
+					frame:Destroy()
+					connection:Disconnect()
+					endConnection:Disconnect()
 				end
 			end)
 		end
