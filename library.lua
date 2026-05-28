@@ -1,8 +1,8 @@
 --[[
 get skidware now
-1.4.4
+1.4.5
 ]]
-local InputService, TextService, CoreGui, Teams, Players, RunService, TweenService = game:GetService'UserInputService', game:GetService'TextService', game:GetService'CoreGui', game:GetService'Teams', game:GetService'Players', game:GetService'RunService', game:GetService'TweenService'
+local InputService, TextService, CoreGui, Teams, Players, RunService, TweenService, Camera = game:GetService'UserInputService', game:GetService'TextService', game:GetService'CoreGui', game:GetService'Teams', game:GetService'Players', game:GetService'RunService', game:GetService'TweenService', workspace.CurrentCamera
 local RenderStepped, LocalPlayer = RunService.RenderStepped, Players.LocalPlayer
 local Mouse, ProtectGui, ScreenGui = LocalPlayer:GetMouse(), protectgui or (syn and syn.protect_gui) or (function() end), Instance.new'ScreenGui'
 
@@ -1134,8 +1134,6 @@ do
     function Funcs.AddKeyPicker(self, Idx, Info)
         local ParentObj, ToggleLabel, _ = self, self.TextLabel, self.Container
 
-        assert(Info.Default, 'AddKeyPicker: Missing default value.')
-
         local KeyPicker = {
             Value = Info.Default,
             Toggled = false,
@@ -1182,7 +1180,7 @@ do
         local DisplayLabel, ContainerLabel, Modes, contextmenu = Library:CreateLabel{
             Size = UDim2.new(1, 0, 1, 0),
             TextSize = 13,
-            Text = Info.Default,
+            Text = Info.Default or 'None',
             TextWrapped = true,
             ZIndex = 8,
             Parent = PickInner,
@@ -1223,7 +1221,7 @@ do
 
             local State = KeyPicker:GetState()
 
-            ContainerLabel.Text = string.format('[%s] %s (%s)', KeyPicker.Value, Info.Text, KeyPicker.Mode)
+            ContainerLabel.Text = string.format('[%s] %s (%s)', KeyPicker.Value or "None", Info.Text, KeyPicker.Mode)
             ContainerLabel.Visible = true
             ContainerLabel.TextColor3 = State and Library.AccentColor or Library.FontColor
             Library.RegistryMap[ContainerLabel].Properties.TextColor3 = State and 'AccentColor' or 'FontColor'
@@ -1333,7 +1331,11 @@ do
                     local Key
 
                     if Input.UserInputType == Enum.UserInputType.Keyboard then
-                        Key = Input.KeyCode.Name
+                        if Input.KeyCode == Enum.KeyCode.Escape then
+                            Key = nil
+                        else
+                            Key = Input.KeyCode.Name
+                        end
                     elseif Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
                         Key = 'MB1'
                     elseif Input.UserInputType == Enum.UserInputType.MouseButton2 then
@@ -1344,7 +1346,7 @@ do
 
                     Break = true
                     Picking = false
-                    DisplayLabel.Text = Key
+                    DisplayLabel.Text = Key or 'None'
                     KeyPicker.Value = Key
 
                     Library:SafeCallback(KeyPicker.ChangedCallback, Input.KeyCode or Input.UserInputType)
@@ -2187,6 +2189,8 @@ do
             OriginalText = Info.Text,
             Text = Info.Text,
             Idx = Idx,
+            Colors = {},
+            Buttons = {},
         }, self
         local Container, RelativeOffset = Groupbox.Container, 0
 
@@ -2407,6 +2411,7 @@ do
                     ZIndex = 25,
                     Parent = Button,
                 }
+                Dropdown.Buttons[Value] = ButtonLabel
 
                 Library:OnHighlight(Button, Button, {
                     BorderColor3 = 'AccentColor',
@@ -2431,8 +2436,15 @@ do
                         Selected = Dropdown.Value == Value
                     end
 
-                    ButtonLabel.TextColor3 = Selected and Library.AccentColor or Library.FontColor
-                    Library.RegistryMap[ButtonLabel].Properties.TextColor3 = Selected and 'AccentColor' or 'FontColor'
+                    local CustomColor = Dropdown.Colors[Value]
+
+                    if CustomColor then
+                        ButtonLabel.TextColor3 = CustomColor
+                        Library.RegistryMap[ButtonLabel].Properties.TextColor3 = nil
+                    else
+                        ButtonLabel.TextColor3 = Selected and Library.AccentColor or Library.FontColor
+                        Library.RegistryMap[ButtonLabel].Properties.TextColor3 = Selected and 'AccentColor' or 'FontColor'
+                    end
                 end
 
                 Button.MouseButton1Click:Connect(function(Input)
@@ -2490,6 +2502,23 @@ do
             end
 
             Dropdown:BuildDropdownList()
+        end
+        function Dropdown.SetColor(self, Value, Color)
+            Dropdown.Colors[Value] = Color
+
+            local Label = Dropdown.Buttons[Value]
+
+            if Label then
+                if Color then
+                    Label.TextColor3 = Color
+                    Library.RegistryMap[Label].Properties.TextColor3 = nil
+                else
+                    local Selected = Dropdown.Multi and Dropdown.Value[Value] or Dropdown.Value == Value
+
+                    Label.TextColor3 = Selected and Library.AccentColor or Library.FontColor
+                    Library.RegistryMap[Label].Properties.TextColor3 = Selected and 'AccentColor' or 'FontColor'
+                end
+            end
         end
         function Dropdown.Refresh(self, NewValues)
             if NewValues then
@@ -2892,57 +2921,77 @@ function Library.SetWatermark(self, Text)
     Library.Watermark.Size = UDim2.new(0, X + 15, 0, (Y * 1.5) + 3)
     Library.WatermarkText.Text = Text
 end
+
+function Library:UpdateNotifications()
+    local viewport = Camera.ViewportSize
+    local baseY = viewport.Y * 0.77
+
+    for i = 1, #self.Notifications do
+        local notif = self.Notifications[i]
+
+        if notif and notif.Parent then
+            local position = UDim2.fromOffset(
+                viewport.X * 0.5,
+                baseY - ((#self.Notifications - i) * 26)
+            )
+
+            TweenService:Create(
+                notif,
+                TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+                {Position = position}
+            ):Play()
+        end
+    end
+end
+
 function Library.Notify(self, Text, Time)
-    local Camera = workspace.CurrentCamera
-    local Viewport, XSize, YSize = Camera.ViewportSize, Library:GetTextBounds(Text, Library.Font, 14)
+    local viewport = Camera.ViewportSize
+    local xSize, ySize = Library:GetTextBounds(Text, Library.Font, 14)
 
-    YSize = YSize + 7
+    ySize += 7
 
-    local NotifyOuter = Library:Create('Frame', {
-        BorderColor3 = Color3.new(0, 0, 0),
-        Size = UDim2.fromOffset(0, YSize),
-        ClipsDescendants = true,
-        ZIndex = 100,
-        AnchorPoint = Vector2.new(0.5, 0),
-        Position = UDim2.fromOffset(Viewport.X / 2, Viewport.Y),
-        Parent = ScreenGui,
-    })
-
-    if #Library.Notifications >= 10 then
-        local oldest = table.remove(Library.Notifications, 1)
+    if #self.Notifications >= 10 then
+        local oldest = table.remove(self.Notifications, 1)
 
         if oldest then
             oldest:Destroy()
         end
     end
 
-    table.insert(Library.Notifications, NotifyOuter)
+    local NotifyOuter = Instance.new("Frame")
+    NotifyOuter.Size = UDim2.fromOffset(0, ySize)
+    NotifyOuter.Position = UDim2.fromOffset(viewport.X * 0.5, viewport.Y)
+    NotifyOuter.AnchorPoint = Vector2.new(0.5, 0)
+    NotifyOuter.BorderColor3 = Color3.new()
+    NotifyOuter.ClipsDescendants = true
+    NotifyOuter.ZIndex = 100
+    NotifyOuter.Parent = ScreenGui
 
-    local NotifyInner = Library:Create('Frame', {
-        BackgroundColor3 = Library.MainColor,
-        BorderColor3 = Library.OutlineColor,
-        BorderMode = Enum.BorderMode.Inset,
-        Size = UDim2.fromScale(1, 1),
-        ZIndex = 101,
-        Parent = NotifyOuter,
-    })
-    local InnerFrame, grad = Library:Create('Frame', {
-        BackgroundColor3 = Color3.new(1, 1, 1),
-        BorderSizePixel = 0,
-        Position = UDim2.fromOffset(1, 1),
-        Size = UDim2.new(1, -2, 1, -2),
-        ZIndex = 102,
-        Parent = NotifyInner,
-    }), Instance.new'UIGradient'
+    local NotifyInner = Instance.new("Frame")
+    NotifyInner.Size = UDim2.fromScale(1, 1)
+    NotifyInner.BackgroundColor3 = Library.MainColor
+    NotifyInner.BorderColor3 = Library.OutlineColor
+    NotifyInner.BorderMode = Enum.BorderMode.Inset
+    NotifyInner.ZIndex = 101
+    NotifyInner.Parent = NotifyOuter
 
-    grad.Color = ColorSequence.new{
+    local InnerFrame = Instance.new("Frame")
+    InnerFrame.BackgroundColor3 = Color3.new(1, 1, 1)
+    InnerFrame.BorderSizePixel = 0
+    InnerFrame.Position = UDim2.fromOffset(1, 1)
+    InnerFrame.Size = UDim2.new(1, -2, 1, -2)
+    InnerFrame.ZIndex = 102
+    InnerFrame.Parent = NotifyInner
+
+    local Gradient = Instance.new("UIGradient")
+    Gradient.Color = ColorSequence.new({
         ColorSequenceKeypoint.new(0, Library:GetDarkerColor(Library.MainColor)),
-        ColorSequenceKeypoint.new(1, Library.MainColor),
-    }
-    grad.Rotation = -90
-    grad.Parent = InnerFrame
+        ColorSequenceKeypoint.new(1, Library.MainColor)
+    })
+    Gradient.Rotation = -90
+    Gradient.Parent = InnerFrame
 
-    Library:CreateLabel{
+    Library:CreateLabel({
         Position = UDim2.fromOffset(4, 0),
         Size = UDim2.new(1, -4, 1, 0),
         Text = Text,
@@ -2950,46 +2999,40 @@ function Library.Notify(self, Text, Time)
         TextSize = 14,
         ZIndex = 103,
         Parent = InnerFrame,
-    }
-    NotifyOuter:TweenSize(UDim2.fromOffset(XSize + 12, YSize), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.25, true)
+    })
 
-    for i = 1, #Library.Notifications do
-        local v = Library.Notifications[i]
+    table.insert(self.Notifications, NotifyOuter)
 
-        if v and v ~= NotifyOuter then
-            local offset = (#Library.Notifications - i) * 26
+    TweenService:Create(
+        NotifyOuter,
+        TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+        {Size = UDim2.fromOffset(xSize + 12, ySize)}
+    ):Play()
 
-            v:TweenPosition(UDim2.fromOffset(Viewport.X / 2, Viewport.Y * 0.77 - offset), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.25, true)
-        end
-    end
+    self:UpdateNotifications()
 
     task.delay(Time or 5, function()
-        if not NotifyOuter then
+        if not NotifyOuter.Parent then
             return
         end
 
-        NotifyOuter:TweenSize(UDim2.fromOffset(0, YSize), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.25, true)
-        task.delay(0.25, function()
-            for i = 1, #Library.Notifications do
-                if Library.Notifications[i] == NotifyOuter then
-                    table.remove(Library.Notifications, i)
+        TweenService:Create(
+            NotifyOuter,
+            TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+            {Size = UDim2.fromOffset(0, ySize)}
+        ):Play()
 
-                    break
-                end
+        task.wait(0.2)
+
+        for i = 1, #self.Notifications do
+            if self.Notifications[i] == NotifyOuter then
+                table.remove(self.Notifications, i)
+                break
             end
+        end
 
-            NotifyOuter:Destroy()
-
-            for i = 1, #Library.Notifications do
-                local v = Library.Notifications[i]
-
-                if v then
-                    local offset = (#Library.Notifications - i) * 26
-
-                    v:TweenPosition(UDim2.fromOffset(Viewport.X / 2, Viewport.Y * 0.77 - offset), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.25, true)
-                end
-            end
-        end)
+        NotifyOuter:Destroy()
+        self:UpdateNotifications()
     end)
 end
 function Library.CreateWindow(self, ...)
