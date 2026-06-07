@@ -1,6 +1,6 @@
 --[[
 get skidware now
-1.4.5
+1.4.6
 ]]
 local InputService, TextService, CoreGui, Teams, Players, RunService, TweenService, Camera = game:GetService'UserInputService', game:GetService'TextService', game:GetService'CoreGui', game:GetService'Teams', game:GetService'Players', game:GetService'RunService', game:GetService'TweenService', workspace.CurrentCamera
 local RenderStepped, LocalPlayer = RunService.RenderStepped, Players.LocalPlayer
@@ -2553,12 +2553,12 @@ do
                 Dropdown._tween:Cancel()
             end
 
-            Dropdown._tween = TweenService:Create(ListOuter, TweenInfo.new(0.18, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
+            Dropdown._tween = TweenService:Create(ListOuter, TweenInfo.new(0.1, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
                 Size = UDim2.fromOffset(DropdownOuter.AbsoluteSize.X + 0.5, targetY),
             })
 
             Dropdown._tween:Play()
-            TweenService:Create(DropdownArrow, TweenInfo.new(0.18, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {Rotation = 180}):Play()
+            TweenService:Create(DropdownArrow, TweenInfo.new(0.1, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {Rotation = 180}):Play()
         end
         function Dropdown.CloseDropdown(self)
             Library.OpenedFrames[ListOuter] = nil
@@ -2567,13 +2567,13 @@ do
                 Dropdown._tween:Cancel()
             end
 
-            Dropdown._tween = TweenService:Create(ListOuter, TweenInfo.new(0.14, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
+            Dropdown._tween = TweenService:Create(ListOuter, TweenInfo.new(0.1, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
                 Size = UDim2.fromOffset(DropdownOuter.AbsoluteSize.X + 0.5, 0),
             })
 
             Dropdown._tween:Play()
-            TweenService:Create(DropdownArrow, TweenInfo.new(0.14, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {Rotation = 0}):Play()
-            task.delay(0.14, function()
+            TweenService:Create(DropdownArrow, TweenInfo.new(0.1, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {Rotation = 0}):Play()
+            task.delay(0.1, function()
                 if ListOuter then
                     ListOuter.Visible = false
                 end
