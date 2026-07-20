@@ -1,3 +1,6 @@
+if getgenv().omgthisshitisloadedlmao then return warn("skidware already loaded") end
+getgenv().omgthisshitisloadedlmao = true
+
 local bindable = Instance.new("BindableFunction")
 function bindable.OnInvoke(choice)
     if choice == "Yes" then
