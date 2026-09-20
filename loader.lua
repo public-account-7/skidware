@@ -1,7 +1,6 @@
 repeat
     task.wait()
 until game:IsLoaded()
-pcall(delfolder, "polsec")
 
 if getgenv().omgthisshitisloadedlmao then return warn("skidware already loaded") end
 getgenv().omgthisshitisloadedlmao = true
